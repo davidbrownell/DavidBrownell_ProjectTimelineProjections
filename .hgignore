@@ -24,3 +24,8 @@ Deactivate.*.sh
 coverage.xml
 
 .vscode/*
+
+node_modules/*
+dist/*
+.pytest_cache/*
+.DS_Store
