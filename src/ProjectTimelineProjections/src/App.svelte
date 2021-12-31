@@ -1,56 +1,29 @@
 <script lang="ts">
-
+    import TimelineProjection from './lib/TimelineProjection.svelte';
 </script>
 
 <main>
-  <h1>Hello Typescript!</h1>
-
-  <p>
-    Visit <a href="https://svelte.dev">svelte.dev</a> to learn how to build Svelte
-    apps.
-  </p>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme">SvelteKit</a> for
-    the officially supported framework, also powered by Vite!
-  </p>
+  <TimelineProjection
+    events={[1, 2, 3, 4]}
+    any_sprint_bounary={new Date(2021, 12, 22)}
+  />
+  <TimelineProjection
+    events={[1, 2]}
+    any_sprint_bounary={new Date(2021, 12, 22)}
+  />
 </main>
 
-<style>
-  :root {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  }
+<style lang="sass">
+  :root
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
 
-  main {
-    text-align: center;
-    padding: 1em;
-    margin: 0 auto;
-  }
+  main
+      position: absolute
+      left: 0
+      top: 0
+      right: 0
+      bottom: 0
 
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4rem;
-    font-weight: 100;
-    line-height: 1.1;
-    margin: 2rem auto;
-    max-width: 14rem;
-  }
-
-  p {
-    max-width: 14rem;
-    margin: 1rem auto;
-    line-height: 1.35;
-  }
-
-  @media (min-width: 480px) {
-    h1 {
-      max-width: none;
-    }
-
-    p {
-      max-width: none;
-    }
-  }
+      padding: 10px
+      margin: 0px
 </style>
