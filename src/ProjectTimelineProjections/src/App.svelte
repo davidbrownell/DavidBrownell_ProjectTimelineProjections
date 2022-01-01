@@ -1,16 +1,21 @@
 <script lang="ts">
     import TimelineProjection from './lib/TimelineProjection.svelte';
+    import sample_input from './assets/sample_input.json'
 </script>
 
 <main>
   <TimelineProjection
-    events={[1, 2, 3, 4]}
-    any_sprint_bounary={new Date(2021, 12, 22)}
+    title="One"
+    events={sample_input}
+    any_sprint_bounary={new Date("2022-1-5")}
   />
-  <TimelineProjection
-    events={[1, 2]}
-    any_sprint_bounary={new Date(2021, 12, 22)}
+  <!--
+    <TimelineProjection
+    title="Two"
+    events={[]}
+    any_sprint_bounary={new Date(2022, 1, 5)}
   />
+  -->
 </main>
 
 <style lang="sass">

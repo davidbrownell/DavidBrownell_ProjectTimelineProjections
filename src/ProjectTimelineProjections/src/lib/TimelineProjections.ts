@@ -28,6 +28,8 @@ export class TimelineInputEvent {
 }
 
 export class TimelineOutputEventTeamData {
+    public readonly total_points: number;
+
     constructor(
         public readonly total_points_completed: number,
         public readonly total_points_pending: number,
@@ -40,7 +42,14 @@ export class TimelineOutputEventTeamData {
         public readonly max_velocity: number | undefined,
 
         public readonly opaque_data: any,
-    ) {}
+    ) {
+        this.total_points =
+            this.total_points_completed +
+            this.total_points_pending +
+            this.total_points_active +
+            this.total_points_estimated +
+            this.total_points_unestimated;
+    }
 
     // BugBug: Return dates based on average velocities
 
@@ -125,11 +134,24 @@ export class TimelineOutputEventTeamData {
 
 
 export class TimelineOutputEvent {
+    public readonly total_points: number;
+
     constructor(
         public readonly date: Date,
         public readonly is_sprint_boundary: boolean,
-        public readonly team_data: Map<string | undefined, TimelineOutputEventTeamData>,
-    ) {}
+        public readonly team_data: Record<string | undefined, TimelineOutputEventTeamData>,
+        public readonly is_generated=false,
+    ) {
+        let total_points = 0;
+
+        Object.keys(this.team_data).forEach(
+            (team_name) => {
+                total_points += this.team_data[team_name].total_points;
+            }
+        );
+
+        this.total_points = total_points;
+    }
 
     ProjectPendingDates(
         sprint_start: Date,
@@ -161,8 +183,8 @@ export class TimelineOutputEvent {
         let min_date: Date | undefined;
         let max_date: Date | undefined;
 
-        this.team_data.forEach(
-            (team_data) => {
+        Object.entries(this.team_data).forEach(
+            ([team_name, team_data]) => {
                 const result = get_dates_func(team_data);
 
                 if(result === undefined)
@@ -187,7 +209,7 @@ export class TimelineOutputEvent {
 }
 
 
-export function CreateTimelines(
+export function CreateTimelineEvents(
     input_events: TimelineInputEvent[],     // Must be in ascending order according to `date`
     days_in_sprint: number,
     any_sprint_boundary: Date,
@@ -287,18 +309,19 @@ export function CreateTimelines(
     }
 
     // ----------------------------------------------------------------------
-    let velocity_infos = new Map<string | undefined, VelocityInfo>();
+    let velocity_infos: Record<string | undefined, VelocityInfo> = {};
+    let results: TimelineOutputEvent[] = []
 
     function CommitDateInfo(date: Date, input_event_start_index: number, input_event_end_index: number): TimelineOutputEvent {
         const is_sprint_boundary = _AlignDateToSprintBoundary(
             any_sprint_boundary,
             days_in_sprint,
             date,
-        ) == date;
+        ).getTime() === date.getTime();
 
         // Update velocities if we are looking at a sprint boundary
         if(is_sprint_boundary) {
-            let recognized_teams = new Set<string | undefined>(velocity_infos.keys());
+            let recognized_teams = new Set<string | undefined>(Object.keys(velocity_infos));
 
             for(let index = input_event_start_index; index != input_event_end_index; index++) {
                 const event = input_events[index];
@@ -319,11 +342,22 @@ export function CreateTimelines(
         }
 
         // Calculate the team info
-        let team_data = new Map<string | undefined, TimelineOutputEventTeamData>();
+        let team_data: Record<string | undefined, TimelineOutputEventTeamData> = {};
 
         for(let index = input_event_start_index; index != input_event_end_index; index++) {
             const event = input_events[index];
-            const velocity_info = velocity_infos[event.team];
+            const [average_v, min_v, max_v] = (() => {
+                const velocity_info = velocity_infos[event.team];
+
+                if(velocity_info === undefined)
+                    return [undefined, undefined, undefined];
+
+                return [
+                    velocity_info.average_velocity,
+                    velocity_info.min_velocity,
+                    velocity_info.max_velocity,
+                ];
+            })();
 
             team_data[event.team] = new TimelineOutputEventTeamData(
                 event.total_points_completed,
@@ -331,22 +365,34 @@ export function CreateTimelines(
                 event.total_points_active,
                 event.total_points_estimated,
                 event.total_points_unestimated,
-                velocity_info.average_velocity,
-                velocity_info.min_velocity,
-                velocity_info.max_velocity,
+                average_v,
+                min_v,
+                max_v,
                 event.opaque_data
             );
         }
+
+        let is_generated: boolean;
+
+        if(input_event_start_index === input_event_end_index) {
+            is_generated = true;
+
+            if(results.length !== 0)
+                team_data = results[results.length - 1].team_data;
+        }
+        else
+            is_generated = false;
 
         return new TimelineOutputEvent(
             date,
             is_sprint_boundary,
             team_data,
+            is_generated,
         );
     }
 
     // ----------------------------------------------------------------------
-    function DateOnly(date: Date): Date {
+    function DateOnly(date: Date | string): Date {
         var result = new Date(date);
 
         result.setHours(0, 0, 0, 0);
@@ -355,31 +401,31 @@ export function CreateTimelines(
 
     // ----------------------------------------------------------------------
 
-    let results: TimelineOutputEvent[] = []
     let index = 0;
     let expected_date: Date | undefined = undefined;
 
     while(index !== input_events.length) {
-        console.log(`BugBug0 ${index}`);
-
         const this_date = DateOnly(input_events[index].date);
 
+        // @ts-ignore: isNaN
+        if(!(this_date instanceof Date && !isNaN(this_date)))
+            throw new Error(`Invalid date, index '${index}'.`);
+
+        // Fill in missing dates
         if(expected_date !== undefined) {
-            while(expected_date !== this_date) {
+            while(expected_date.getTime() !== this_date.getTime()) {
                 results.push(CommitDateInfo(expected_date, index, index));
                 expected_date = _IncrementDate(expected_date);
             }
         }
 
-        // BugBug
-        index += 1;
-        continue;
-
+        // Group all input events associated with this day
         const starting_index = index;
 
-        while(index !== input_events.length && DateOnly(input_events[index].date) == this_date)
+        while(index !== input_events.length && DateOnly(input_events[index].date).getTime() == this_date.getTime())
             index += 1;
 
+        // Commit the values
         results.push(CommitDateInfo(this_date, starting_index, index));
         expected_date = _IncrementDate(this_date);
     }
