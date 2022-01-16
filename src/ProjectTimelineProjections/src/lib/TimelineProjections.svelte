@@ -1,0 +1,468 @@
+<!--
+----------------------------------------------------------------------
+|
+|  TimelineProjections.svelte
+|
+|  David Brownell <db@DavidBrownell.com>
+|      2022-01-10 10:19:57
+|
+----------------------------------------------------------------------
+|
+|  Copyright David Brownell 2022
+|  Distributed under the Boost Software License, Version 1.0. See
+|  accompanying file LICENSE_1_0.txt or copy at
+|  http://www.boost.org/LICENSE_1_0.txt.
+|
+----------------------------------------------------------------------
+-->
+
+<!--
+----------------------------------------------------------------------
+|
+|  Code
+|
+----------------------------------------------------------------------
+-->
+<script lang=ts>
+
+    import {
+        Colors,
+        default_days_in_sprint,
+        default_points_per_unestimated_item,
+        default_unestimated_velocity_factors,
+        StatsInfo,
+        Configuration as ConfigurationType,
+    } from './impl/SharedTypes';
+
+    import {
+        CreateTimelineEvents,
+        TimelineInputEvent,
+        TimelineOutputEvent,
+    } from './impl/TimelineProjections';
+
+    import Configuration from './impl/Configuration.svelte';
+    import DateControl from './impl/DateControl.svelte';
+    import Graph from './impl/Graph.svelte';
+    import Legend from './impl/Legend.svelte';
+    import Stats from './impl/Stats.svelte';
+
+    import { onMount } from 'svelte';
+    import { fly } from 'svelte/transition';
+
+    import Fa from 'svelte-fa/src/fa.svelte'
+    import {
+        faCompress,
+        faExpand,
+
+    } from '@fortawesome/free-solid-svg-icons';
+
+    // ----------------------------------------------------------------------
+    // |  Properties
+    // ----------------------------------------------------------------------
+    export let title: string;
+    export let description: string | undefined = undefined;
+
+    export let events: TimelineInputEvent[];
+    export let date: Date | undefined = undefined;
+
+    export let any_sprint_boundary: Date;   // Doesn't matter which one we use
+    export let days_in_sprint: number = default_days_in_sprint;
+    export let points_per_unestimated_item: number = default_points_per_unestimated_item;
+    export let use_previous_n_sprints_for_average_velocity: number | undefined = undefined; // When calcualting velocity, limit calculations to the last N sprints; all sprints are used if the value is undefined.
+    export let unestimated_velocity_factors: [number, number] = default_unestimated_velocity_factors;
+    export let velocity_overrides: StatsInfo<number> | undefined = undefined;
+
+    export let height: number | string = "800px";
+    export let width: number | string = "100%";
+
+    export let debug_mode: boolean = false;
+
+    export let allow_toggle_fullscreen: boolean = true;
+    export let allow_date_navigation: boolean = true;
+
+    export let is_fullscreen: boolean = false;
+
+    // ----------------------------------------------------------------------
+    // |  State Management
+    // ----------------------------------------------------------------------
+    let _date: Date = date;
+
+    let _initialized_events: TimelineOutputEvent[];
+    let _initialized_min_date: Date;
+    let _initialized_max_date: Date;
+
+    let _configuration: ConfigurationType;
+
+    const _debug_colors = new Colors();
+    let _debug_borders = debug_mode;
+
+    let _timeline_projections_element: HTMLElement;
+    let _timeline_projections_height: number;
+    let _timeline_projections_width: number;
+
+    let _initial_timeline_projections_height: number;
+    let _initial_timeline_projections_width: number;
+
+    let _current_height: number | undefined;
+    let _current_width: number | undefined;
+
+    let _content_width: number;
+    let _is_content_info_visible: boolean;
+
+    let _current_event: TimelineOutputEvent;
+
+    const _content_info_width = 100;
+
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    let _init_async;
+    let _mounted = false;
+    let _is_initialized = false;
+
+    onMount(
+        () => {
+            // ----------------------------------------------------------------------
+            async function InitAsync() {
+                date = date || new Date();
+                date.setHours(0, 0, 0, 0);
+
+                _date = date;
+                _configuration = new ConfigurationType(
+                    any_sprint_boundary,
+                    days_in_sprint,
+                    points_per_unestimated_item,
+                    use_previous_n_sprints_for_average_velocity,
+                    unestimated_velocity_factors,
+                    velocity_overrides,
+                );
+            }
+
+            // ----------------------------------------------------------------------
+
+            _init_async = InitAsync();
+            _mounted = true;
+        }
+    );
+
+    $: {
+        if(_mounted) {
+            let these_events = CreateTimelineEvents(
+                events,
+                _configuration.days_in_sprint,
+                _configuration.any_sprint_boundary,
+                _configuration.points_per_unestimated_item,
+                _configuration.use_previous_n_sprints_for_average_velocity,
+            );
+
+            these_events.forEach(
+                (event) => {
+                    event.ProjectDates(
+                        _configuration.any_sprint_boundary,
+                        _configuration.days_in_sprint,
+                        _configuration.unestimated_velocity_factors,
+                        _configuration.velocity_overrides,
+                    );
+                }
+            );
+
+            _initialized_events = these_events;
+            _initialized_min_date = these_events[0].date;
+            _initialized_max_date = these_events[these_events.length - 1].date;
+        }
+    }
+
+    $: {
+        if(_mounted) {
+            if(!_is_initialized) {
+                _initial_timeline_projections_height = _timeline_projections_height;
+                _initial_timeline_projections_width = _timeline_projections_width;
+
+                _is_initialized = true;
+            }
+
+            _is_content_info_visible = _content_width > (_content_info_width * 2);
+        }
+    }
+
+    // Full screen
+    $: {
+        if(_is_initialized) {
+            if(is_fullscreen && _current_width === undefined) {
+                let parent: HTMLElement = _timeline_projections_element.parentElement;
+
+                _current_width = parent.clientWidth;
+                _current_height = parent.clientHeight;
+            }
+            else if(!is_fullscreen && _current_width !== undefined) {
+                _current_width = undefined;
+                _current_height = undefined;
+            }
+        }
+    }
+
+    // BugBug: P0
+    //         ----------------------------------------
+    // BugBug: projections should fall on sprint boundaries
+    // BugBug: Overridden velocities should only be used on the last event
+    // BugBug: Estimated projection is wonky
+    // BugBug: Unestimated projection can go in the past with a large max velocity
+
+    // BugBug: Velocity lines don't seem to remain when animation is complete
+    // BugBug: Styling for title and desc
+
+    // BugBug: Accent lines for projections
+    // BugBug: Velocity projection lines
+
+
+
+    // BugBug: P1
+    //         ----------------------------------------
+    // BugBug: Change in window width should cause resize (when width is 100%)
+    // BugBug: Restoration from fullscreen is still wonky (info not restored to original pos)
+    // BugBug: Vertical scroll bar appearing when expanding to full screen
+
+    // BugBug: Delineate sprint boundaries
+    // BugBug: labels for right axis
+    // BugBug: Highlight dates
+
+    // BugBug: Reset button
+
+
+    // BugBug: P2
+    //         ----------------------------------------
+    // BugBug: Settings to optionally display velocities and projections
+    // BugBug: Functionality to filter by team
+
+    // BugBug: Consistent use of parameters and state; state should be internal class
+    // BugBug: Establish consistent svelte model: mounted (onMount) -> synced (promise created during mount is complete) -> initialized (parameters are populated)
+
+
+
+
+
+
+
+</script>
+
+<!--
+----------------------------------------------------------------------
+|
+|  Elements
+|
+----------------------------------------------------------------------
+-->
+<div
+    class=timeline-projections
+    style={
+        (_debug_borders ? _debug_colors.Border() : "") +
+        `height: ${_is_initialized ? (_current_height || _initial_timeline_projections_height) + "px" : (typeof height === "string" ? height : height + "px")};` +
+        `width: ${_is_initialized ? (_current_width || _initial_timeline_projections_width) + "px" : (typeof width === "string" ? width : width + "px")};`
+    }
+    bind:this={_timeline_projections_element}
+    bind:offsetHeight={_timeline_projections_height}
+    bind:offsetWidth={_timeline_projections_width}
+>
+    {#if _mounted}
+        {#await _init_async then data}
+            <!--
+            ----------------------------------------------------------------------
+            |  Header
+            -->
+            <div
+                class=header
+                style={_debug_borders ? _debug_colors.Border() : ""}
+            >
+                {#if debug_mode}
+                    <div class=debug-mode-warning>
+                        <h2>*** DEBUG MODE IS ENABLED ***</h2>
+                        <div>
+                            <lable>
+                                <input type=checkbox bind:checked={_debug_borders} />
+                                Display Borders
+                            </lable>
+                        </div>
+                        <h2>*******</h2>
+                    </div>
+                {/if}
+
+                <div
+                    class=title
+                    style={_debug_borders ? _debug_colors.Border() : ""}
+                >
+                    {@html title}
+                </div>
+
+                {#if description}
+                    <div
+                        class=description
+                        style={_debug_borders ? _debug_colors.Border() : ""}
+                    >
+                        {@html description}
+                    </div>
+                {/if}
+            </div>
+
+            <!--
+            ----------------------------------------------------------------------
+            |  Content
+            -->
+            <div
+                class=content
+                style={_debug_borders ? _debug_colors.Border() : ""}
+                bind:clientWidth={_content_width}
+            >
+                <!-- Graph -->
+                <div
+                    class=content-graph
+                >
+                    <Graph
+                        events={_initialized_events}
+                        date={_date}
+                        debug_mode={debug_mode}
+                        on:display_stats={(event) => { _current_event = event.detail.event; }}
+                    />
+                </div>
+
+                <!-- Info --->
+                {#if _is_content_info_visible}
+                    <div
+                        class=content-info
+                        style={_debug_borders ? _debug_colors.Border() : ""}
+                    >
+                        <div class=stats-control>
+                            <div class=header>Stats</div>
+                            <Stats
+                                event={_current_event}
+                                debug_mode={debug_mode}
+                            />
+                        </div>
+
+                        <div class=legend-control>
+                            <div class=header>Legend</div>
+                            <Legend />
+                        </div>
+
+                        <div class=configuration-control>
+                            <div class=header>Configuration</div>
+                            <Configuration
+                                config={_configuration}
+                                debug_mode={debug_mode}
+                                on:config_change={
+                                    (event) => {
+                                        _configuration = event.detail.config;
+                                        _initialized_events = _initialized_events;
+                                    }
+                                }
+                            />
+                        </div>
+                        <!-- BugBug: Teams section of more than 1 -->
+                    </div>
+                {/if}
+            </div>
+
+            <!--
+            ----------------------------------------------------------------------
+            |  Tools
+            -->
+            <div
+                class=tools
+                style={_debug_borders ? _debug_colors.Border() : ""}
+            >
+                {#if allow_date_navigation}
+                    <DateControl
+                        date={date}
+                        min_date={_initialized_min_date}
+                        max_date={_initialized_max_date}
+                        debug_mode={debug_mode}
+                        on:date_change={(event) => { _date = event.detail.date; }}
+                    />
+                {/if}
+
+                {#if allow_toggle_fullscreen}
+                    <div
+                        class=fullscreen
+                        style={_debug_borders ? _debug_colors.Border() : ""}
+                    >
+                        <button on:click={ () => { is_fullscreen = !is_fullscreen; }}>
+                            <Fa icon={is_fullscreen ? faCompress : faExpand} />
+                        </button>
+                    </div>
+                {/if}
+            </div>
+        {/await}
+    {/if}
+</div>
+
+
+<!--
+----------------------------------------------------------------------
+|
+|  Style
+|
+----------------------------------------------------------------------
+-->
+<style lang=sass>
+    @import './impl/Variables.sass'
+
+    $button-padding: 5px
+    $button-margin: 3px
+
+    .timeline-projections
+        min-height: $graph-min-height * 1.2
+        min-width: $graph-min-width + $content-info-min-width
+
+        position: relative
+        padding-bottom: 4em
+
+        display: flex
+        flex-direction: column
+
+        .header
+            flex: 0
+
+        .content
+            flex: 1
+            height: 100%
+            width: 100%
+
+            padding-top: 2em
+
+            display: flex
+            flex-direction: row
+
+            .content-graph
+                flex: 1
+
+            .content-info
+                flex: 0
+                min-width: $content-info-min-width
+                max-width: $content-info-min-width
+
+                .header
+                    background-color: lightgray
+                    margin-top: 5px
+                    margin-bottom: 5px
+                    padding-top: 5px
+                    padding-bottom: 5px
+                    padding-left: 2px
+
+        .tools
+            flex: 0
+
+            .fullscreen
+                position: absolute
+                top: 0
+                right: 0
+
+                button
+                    padding: $button-padding
+                    margin: $button-margin
+
+            :global(div.date-navigation)
+                position: absolute
+                top: 0
+                right: 0
+                padding-right: calc(1em + 25px)
+
+</style>

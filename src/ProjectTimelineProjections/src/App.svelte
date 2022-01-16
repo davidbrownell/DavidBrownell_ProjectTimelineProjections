@@ -1,21 +1,24 @@
 <script lang="ts">
-    import TimelineProjection from './lib/TimelineProjection.svelte';
+    import TimelineProjections from './lib/TimelineProjections.svelte';
+    import TimelineProjectionsGlobal from './lib/TimelineProjectionsGlobal.svelte';
     import sample_input from './assets/sample_input.json'
 </script>
 
 <main>
-  <TimelineProjection
+  <TimelineProjectionsGlobal />
+
+  <TimelineProjections
     title="One"
     events={sample_input}
-    any_sprint_bounary={new Date("2022-1-5")}
+    any_sprint_boundary={new Date("2022-1-5")}
+    debug_mode={false}
   />
-  <!--
-    <TimelineProjection
+  <TimelineProjections
     title="Two"
-    events={[]}
-    any_sprint_bounary={new Date(2022, 1, 5)}
+    events={sample_input}
+    any_sprint_boundary={new Date(2022, 0, 5)}
+    debug_mode={false}
   />
-  -->
 </main>
 
 <style lang="sass">
