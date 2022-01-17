@@ -36,6 +36,7 @@
 
     import {
         CreateTimelineEvents,
+        NextSprintBoundary,
         TimelineInputEvent,
         TimelineOutputEvent,
     } from './impl/TimelineProjections';
@@ -47,7 +48,6 @@
     import Stats from './impl/Stats.svelte';
 
     import { onMount } from 'svelte';
-    import { fly } from 'svelte/transition';
 
     import Fa from 'svelte-fa/src/fa.svelte'
     import {
@@ -155,13 +155,19 @@
                 _configuration.use_previous_n_sprints_for_average_velocity,
             );
 
+            const last_event = these_events[these_events.length - 1];
+
             these_events.forEach(
                 (event) => {
                     event.ProjectDates(
-                        _configuration.any_sprint_boundary,
+                        NextSprintBoundary(
+                            _configuration.any_sprint_boundary,
+                            _configuration.days_in_sprint,
+                            event.date,
+                        ),
                         _configuration.days_in_sprint,
                         _configuration.unestimated_velocity_factors,
-                        _configuration.velocity_overrides,
+                        (_configuration.use_velocity_overrides_for_all_dates || event === last_event) ? _configuration.velocity_overrides : undefined,
                     );
                 }
             );
@@ -201,31 +207,19 @@
         }
     }
 
-    // BugBug: P0
-    //         ----------------------------------------
-    // BugBug: projections should fall on sprint boundaries
-    // BugBug: Overridden velocities should only be used on the last event
-    // BugBug: Estimated projection is wonky
-    // BugBug: Unestimated projection can go in the past with a large max velocity
-
-    // BugBug: Velocity lines don't seem to remain when animation is complete
-    // BugBug: Styling for title and desc
-
-    // BugBug: Accent lines for projections
-    // BugBug: Velocity projection lines
-
-
-
     // BugBug: P1
     //         ----------------------------------------
+    // BugBug: Dynamic sizing no longer works as expected
     // BugBug: Change in window width should cause resize (when width is 100%)
     // BugBug: Restoration from fullscreen is still wonky (info not restored to original pos)
     // BugBug: Vertical scroll bar appearing when expanding to full screen
+    // BugBug: Upon configuration changes, keep same map highlight scale
 
     // BugBug: Delineate sprint boundaries
     // BugBug: labels for right axis
     // BugBug: Highlight dates
 
+    // BugBug: Collapseable info sections
     // BugBug: Reset button
 
 
@@ -237,7 +231,7 @@
     // BugBug: Consistent use of parameters and state; state should be internal class
     // BugBug: Establish consistent svelte model: mounted (onMount) -> synced (promise created during mount is complete) -> initialized (parameters are populated)
 
-
+    // BugBug: Horizontally align content in legend and configuration (similar to stats)
 
 
 
@@ -332,29 +326,35 @@
                     >
                         <div class=stats-control>
                             <div class=header>Stats</div>
-                            <Stats
-                                event={_current_event}
-                                debug_mode={debug_mode}
-                            />
+                            <div class=display>
+                                <Stats
+                                    event={_current_event}
+                                    debug_mode={debug_mode}
+                                />
+                            </div>
                         </div>
 
                         <div class=legend-control>
                             <div class=header>Legend</div>
-                            <Legend />
+                            <div class=display>
+                                <Legend />
+                            </div>
                         </div>
 
                         <div class=configuration-control>
                             <div class=header>Configuration</div>
-                            <Configuration
-                                config={_configuration}
-                                debug_mode={debug_mode}
-                                on:config_change={
-                                    (event) => {
-                                        _configuration = event.detail.config;
-                                        _initialized_events = _initialized_events;
+                            <div class=display>
+                                <Configuration
+                                    config={_configuration}
+                                    debug_mode={debug_mode}
+                                    on:config_change={
+                                        (event) => {
+                                            _configuration = event.detail.config;
+                                            _initialized_events = _initialized_events;
+                                        }
                                     }
-                                }
-                            />
+                                />
+                            </div>
                         </div>
                         <!-- BugBug: Teams section of more than 1 -->
                     </div>
@@ -408,6 +408,8 @@
     $button-padding: 5px
     $button-margin: 3px
 
+    $content-info-indentation: 15px
+
     .timeline-projections
         min-height: $graph-min-height * 1.2
         min-width: $graph-min-width + $content-info-min-width
@@ -420,6 +422,13 @@
 
         .header
             flex: 0
+
+            .title
+                font-size: 3em
+                font-weight: bold
+
+            .description
+                padding-left: 1em
 
         .content
             flex: 1
@@ -436,16 +445,32 @@
 
             .content-info
                 flex: 0
-                min-width: $content-info-min-width
-                max-width: $content-info-min-width
+                min-width: $content-info-min-width + $content-info-indentation
+                max-width: $content-info-min-width + $content-info-indentation
 
                 .header
                     background-color: lightgray
+
+                    cursor: pointer
+
+                    font-size: 1.25em
+
                     margin-top: 5px
                     margin-bottom: 5px
-                    padding-top: 5px
-                    padding-bottom: 5px
-                    padding-left: 2px
+                    padding: 2px
+
+                    width: 100%
+
+                .display
+                    padding-left: $content-info-indentation
+                    padding-bottom: 10px
+
+                // TODO: .display
+                // TODO:     display: none
+                // TODO:
+                // TODO: .stats-control
+                // TODO:     .display
+                // TODO:         display: unset
 
         .tools
             flex: 0

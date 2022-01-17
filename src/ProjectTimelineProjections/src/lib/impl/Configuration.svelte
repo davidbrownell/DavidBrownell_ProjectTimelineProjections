@@ -207,6 +207,9 @@
         if(event.target.classList.contains("velocity-overrides-check")) {
             _velocity_overrides_check = !_velocity_overrides_check;
         }
+        else if(event.target.classList.contains("use-velocity-overrides-for-all-dates-check")) {
+            _working_config.use_velocity_overrides_for_all_dates = !_working_config.use_velocity_overrides_for_all_dates;
+        }
         else {
             const value = _ExtractEventValue(event);
 
@@ -433,6 +436,17 @@
                 on:input={OnVelocityOverrides}
                 bind:this={_velocity_overrides_max_element}
             />
+
+            <label>
+                <input
+                    type=checkbox
+                    class="label use-velocity-overrides-for-all-dates-check"
+                    value={_working_config.use_velocity_overrides_for_all_dates}
+                    disabled={!_velocity_overrides_check}
+                    on:input={OnVelocityOverrides}
+                >
+                Use velocity overrides for all dates
+            </label>
         </div>
     {/if}
 </div>

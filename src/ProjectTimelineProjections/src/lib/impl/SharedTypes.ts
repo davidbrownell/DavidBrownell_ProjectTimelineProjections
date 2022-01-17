@@ -71,6 +71,7 @@ export class Configuration {
         public use_previous_n_sprints_for_average_velocity: number | undefined=undefined,
         public unestimated_velocity_factors: [number, number]=default_unestimated_velocity_factors,
         public velocity_overrides: StatsInfo<number> | undefined=undefined,
+        public use_velocity_overrides_for_all_dates: boolean=false,
     ) {}
 
     Copy = (): Configuration => {
@@ -81,6 +82,7 @@ export class Configuration {
             this.use_previous_n_sprints_for_average_velocity,
             this.unestimated_velocity_factors,
             this.velocity_overrides,
+            this.use_velocity_overrides_for_all_dates,
         );
     }
 };

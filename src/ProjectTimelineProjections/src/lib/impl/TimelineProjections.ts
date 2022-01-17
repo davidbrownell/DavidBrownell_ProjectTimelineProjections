@@ -167,6 +167,8 @@ export class TimelineOutputEvent {
     public readonly total_num_unestimated_items: number;
 
     public readonly average_velocities: StatsInfo<number>;
+
+    public velocity_overrides: StatsInfo<number> | undefined = undefined;
     public estimated_dates: StatsInfo<Date> | undefined = undefined;
     public remaining_dates: StatsInfo<Date> | undefined = undefined;
 
@@ -308,6 +310,8 @@ export class TimelineOutputEvent {
                 remaining_min,
                 remaining_max,
             );
+
+        this.velocity_overrides = velocity_overrides;
     }
 }
 
@@ -482,6 +486,20 @@ export function CreateTimelineEvents(
     }
 
     return results;
+}
+
+
+export function NextSprintBoundary(
+    any_sprint_boundary: Date,
+    days_in_sprint: number,
+    date: Date,
+): Date {
+    let result = _AlignDateToSprintBoundary(any_sprint_boundary, days_in_sprint, date);
+
+    if(CompareDates(result, date) === 0)
+        result = _AlignDateToSprintBoundary(any_sprint_boundary, days_in_sprint, _IncrementDate(date));
+
+    return result;
 }
 
 // ----------------------------------------------------------------------

@@ -52,7 +52,7 @@ Global content that can only be defined once.
     $estimated-projection-color: #BDB76B
     $unestimated-projection-color: #F0E68C
 
-    $velocity-width: 2px
+    $velocity-width: 3px
     $velocity-dash-size: 5px
 
     :global(.points-completed)
@@ -104,12 +104,16 @@ Global content that can only be defined once.
         stroke-dashoffset: $velocity-dash-size * 2
         stroke-width: $velocity-width
 
-    :global(.projected-average-date)
+    :global(.projection-average-date)
         fill: none
         stroke: red
         stroke-dasharray: 3 3
         stroke-width: 2px
         opacity: 0.25
+
+    :global(.extension)
+        opacity: 0.5
+        stroke-width: $velocity-width - 2
 </style>
 
 <!--

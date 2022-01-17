@@ -186,7 +186,20 @@
 
                 // Update the scalers
                 details_y_velocity_scaler = d3.scaleLinear()
-                    .domain([0, d3.max(events, (event) => event.average_velocities !== undefined ? event.average_velocities.max : undefined) * scalers_scaler])
+                    .domain(
+                        [
+                            0,
+                            d3.max(
+                                events,
+                                (event) => d3.max(
+                                    [
+                                        event.average_velocities !== undefined ? event.average_velocities.max : undefined,
+                                        event.velocity_overrides !== undefined ? event.velocity_overrides.max : undefined,
+                                    ],
+                                ),
+                            ) * scalers_scaler,
+                        ]
+                    )
                     .range([details_content_height, 0]);
 
                 details_y_story_points_scaler = d3.scaleLinear()
@@ -459,22 +472,22 @@
                         {
                             cls: "min-velocity",
                             category: "velocity",
-                            y_func: (event) => event.average_velocities.min,
-                            defined_func: (event) => event.average_velocities !== undefined && event.average_velocities.min !== 0,
+                            y_func: (event) => (event.velocity_overrides || event.average_velocities).min,
+                            defined_func: (event) => event.velocity_overrides || event.average_velocities,
                             scaler: graph_info.y_velocity_scaler,
                         },
                         {
                             cls: "average-velocity",
                             category: "velocity",
-                            y_func: (event) => event.average_velocities.average,
-                            defined_func: (event) => event.average_velocities !== undefined && event.average_velocities.average !== 0,
+                            y_func: (event) => (event.velocity_overrides || event.average_velocities).average,
+                            defined_func: (event) => event.velocity_overrides || event.average_velocities,
                             scaler: graph_info.y_velocity_scaler,
                         },
                         {
                             cls: "max-velocity",
                             category: "velocity",
-                            y_func: (event) => event.average_velocities.max,
-                            defined_func: (event) => event.average_velocities !== undefined && event.average_velocities.max !== 0,
+                            y_func: (event) => (event.velocity_overrides || event.average_velocities).max,
+                            defined_func: (event) => event.velocity_overrides || event.average_velocities,
                             scaler: graph_info.y_velocity_scaler,
                         },
                     ]
@@ -518,8 +531,8 @@
             // ----------------------------------------------------------------------
             function DisplayProjection(
                 is_background: boolean,
-                cls: string,
                 this_date: Date,
+                cls: string,
                 dates: StatsInfo<Date> | undefined,
                 starting_points: number,
                 ending_points: number,
@@ -593,42 +606,140 @@
                     if(graph_info.cls !== "details")
                         continue;
 
-                    // Average date
-                    let average_date_commands: string[];
+                    // Accent lines
+                    for(
+                        let accent_info of [
+                            {
+                                cls: "projection-average-date",
+                                start: [
+                                    graph_info.x_scaler(this_date),
+                                    (graph_info.y_scaler(starting_points) + graph_info.y_scaler(ending_points)) / 2,
+                                ],
+                                end: [
+                                    graph_info.x_scaler(dates ? dates.average : 0),
+                                    graph_info.y_scaler(0),
+                                ],
+                            },
+                            {
+                                cls: "projection-highlight-min",
+                                start: [
+                                    graph_info.x_scaler(this_date),
+                                    graph_info.y_scaler(starting_points),
+                                ],
+                                end: [
+                                    graph_info.x_scaler(dates ? dates.min : 0),
+                                    graph_info.y_scaler(0),
+                                ],
+                            },
+                            {
+                                cls: "projection-highlight-max",
+                                start: [
+                                    graph_info.x_scaler(this_date),
+                                    graph_info.y_scaler(ending_points),
+                                ],
+                                end: [
+                                    graph_info.x_scaler(dates ? dates.max : 0),
+                                    graph_info.y_scaler(0),
+                                ],
+                            },
+                        ]
+                    ) {
+                        let commands: string[];
 
-                    if(dates !== undefined && starting_points !== ending_points) {
-                        const y_pos = (graph_info.y_scaler(starting_points) + graph_info.y_scaler(ending_points)) / 2;
+                        if(starting_points !== ending_points) {
+                            commands = [
+                                `M ${accent_info.start[0]} ${accent_info.start[1]}`,
+                                `L ${accent_info.end[0]} ${accent_info.end[1]}`,
+                            ];
+                        }
+                        else {
+                            commands = [
+                                `M ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(starting_points)}`,
+                                `L ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(ending_points)}`,
+                            ];
+                        }
 
-                        average_date_commands = [
-                            `M ${graph_info.x_scaler(this_date)} ${y_pos}`,
-                            `L ${graph_info.x_scaler(dates.average)} ${graph_info.y_scaler(0)}`,
-                        ];
+                        const commands_str = commands.join(" ");
+
+                        this_graph
+                            .selectAll(`path.accent.${accent_info.cls}.${cls}${is_background ? ".background" : ""}`)
+                                .data([commands_str])
+                                .join(
+                                    // @ts-ignore
+                                    (enter: any) => {
+                                        enter
+                                            .append("path")
+                                                .attr("class", `accent ${accent_info.cls} ${cls} ${is_background ? "background" : ""}`)
+                                                .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
+                                                .attr("d", commands_str);
+                                    },
+                                    (update: any) => {
+                                        update
+                                            .transition()
+                                            .attr("d", commands_str);
+                                    },
+                                    (exit: any) => {
+                                        exit
+                                            .transition()
+                                            .style("opacity", 0)
+                                            .remove();
+                                    },
+                                );
                     }
-                    else {
-                        average_date_commands = [
-                            `M ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(starting_points)}`,
-                            `L ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(starting_points)}`
-                        ];
-                    }
+                }
+            }
 
-                    const average_date_commands_str = average_date_commands.join(" ");
+            // ----------------------------------------------------------------------
+            function DisplayVelocityExtensions(
+                is_background: boolean,
+                this_date: Date,
+                velocities: StatsInfo<number> | undefined
+            ) {
+                const this_graph = graph.select("g.details");
+
+                // Velocity extensions
+                for(
+                    let extension_info of [
+                        {
+                            cls: "min-velocity",
+                            y_value: velocities ? velocities.min : undefined,
+                        },
+                        {
+                            cls: "average-velocity",
+                            y_value: velocities ? velocities.average : undefined,
+                        },
+                        {
+                            cls: "max-velocity",
+                            y_value: velocities ? velocities.max : undefined,
+                        },
+                    ]
+                ) {
+                    const y_pos = details_y_velocity_scaler(extension_info.y_value || 0);
+
+                    const calc = d3.line()
+                        // @ts-ignore
+                        .x(details_x_scaler)
+                        .y(y_pos);
 
                     this_graph
-                        .selectAll(`path.projected-average-date.${cls}${is_background ? ".background" : ""}`)
-                        .data([average_date_commands_str])
+                        .selectAll(`path.extension.${extension_info.cls}${is_background ? ".background" : ""}`)
+                        .data(
+                            [
+                                [this_date, details_x_scaler.domain()[1]]
+                            ]
+                        )
                         .join(
                             // @ts-ignore
                             (enter: any) => {
-                                enter
-                                    .append("path")
-                                        .attr("class", `projected-average-date ${cls} ${is_background ? "background" : ""}`)
-                                        .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
-                                        .attr("d", average_date_commands_str);
+                                enter.append("path")
+                                    .attr("class", `extension ${extension_info.cls} ${is_background ? "background" : ""}`)
+                                    .attr("clip-path", `url(#clip-path-details-${_unique_id}`)
+                                    .attr("d", calc);
                             },
                             (update: any) => {
                                 update
                                     .transition()
-                                    .attr("d", average_date_commands_str);
+                                    .attr("d", calc);
                             },
                             (exit: any) => {
                                 exit
@@ -647,8 +758,8 @@
 
             DisplayProjection(
                 is_background,
-                "estimated-projection",
                 this_event.date,
+                "estimated-projection",
                 this_event.estimated_dates,
                 this_event.total_points_completed + this_event.total_points_active + this_event.total_points_pending,
                 this_event.total_points_completed + this_event.total_points_active + this_event.total_points_pending + this_event.total_points_estimated,
@@ -656,18 +767,24 @@
 
             DisplayProjection(
                 is_background,
-                "unestimated-projection",
                 this_event.date,
+                "unestimated-projection",
                 this_event.remaining_dates,
                 this_event.total_points_completed + this_event.total_points_active + this_event.total_points_pending + this_event.total_points_estimated,
                 this_event.total_points_completed + this_event.total_points_active + this_event.total_points_pending + this_event.total_points_estimated + this_event.total_points_unestimated,
             );
 
+            DisplayVelocityExtensions(
+                is_background,
+                this_event.date,
+                this_event.velocity_overrides || this_event.average_velocities,
+            );
+
             if(_highlighted_event !== undefined) {
                 DisplayProjection(
                     false,
-                    "estimated-projection",
                     _highlighted_event.date,
+                    "estimated-projection",
                     _highlighted_event.estimated_dates,
                     _highlighted_event.total_points_completed + _highlighted_event.total_points_active + _highlighted_event.total_points_pending,
                     _highlighted_event.total_points_completed + _highlighted_event.total_points_active + _highlighted_event.total_points_pending + _highlighted_event.total_points_estimated,
@@ -675,11 +792,17 @@
 
                 DisplayProjection(
                     false,
-                    "unestimated-projection",
                     _highlighted_event.date,
+                    "unestimated-projection",
                     _highlighted_event.remaining_dates,
                     _highlighted_event.total_points_completed + _highlighted_event.total_points_active + _highlighted_event.total_points_pending + _highlighted_event.total_points_estimated,
                     _highlighted_event.total_points_completed + _highlighted_event.total_points_active + _highlighted_event.total_points_pending + _highlighted_event.total_points_estimated + _highlighted_event.total_points_unestimated,
+                );
+
+                DisplayVelocityExtensions(
+                    false,
+                    _highlighted_event.date,
+                    _highlighted_event.velocity_overrides || _highlighted_event.average_velocities,
                 );
             }
         }

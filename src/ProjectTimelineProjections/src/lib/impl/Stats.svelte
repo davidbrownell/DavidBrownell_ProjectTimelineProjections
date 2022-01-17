@@ -50,7 +50,7 @@
         if(date === undefined)
             return "";
 
-        return date.toISOString().split('T')[0];
+        return `${date.getMonth() + 1} / ${date.getDate()} / ${date.getFullYear()}`;
     }
 
     // ----------------------------------------------------------------------
@@ -82,47 +82,47 @@
                 cls: "misc",
                 label: "",
                 items: [
-                    {cls: "date", label: "Date:", value: _ToDateString(event.date)},
-                    {cls: "unestimated_items", label: "Unestimated Items:", value: event.total_num_unestimated_items},
+                    {cls: "date", label: "Date:", value: _ToDateString(event.date), is_date: true},
+                    {cls: "unestimated_items", label: "Unestimated Items:", value: event.total_num_unestimated_items, is_date: false},
                 ],
             },
             {
                 cls: "points",
                 label: "Story Points",
                 items: [
-                    {cls: "total", label: "Total:", value: event.total_points},
-                    {cls: "completed", label: "Completed:", value: event.total_points_completed},
-                    {cls: "active", label: "Active:", value: event.total_points_active},
-                    {cls: "pending", label: "Pending:", value: event.total_points_pending},
-                    {cls: "estimated", label: "Estimated:", value: event.total_points_estimated},
-                    {cls: "unestimated", label: "Unestimated:", value: event.total_points_unestimated},
+                    {cls: "total", label: "Total:", value: event.total_points, is_date: false},
+                    {cls: "completed", label: "Completed:", value: event.total_points_completed, is_date: false},
+                    {cls: "active", label: "Active:", value: event.total_points_active, is_date: false},
+                    {cls: "pending", label: "Pending:", value: event.total_points_pending, is_date: false},
+                    {cls: "estimated", label: "Estimated:", value: event.total_points_estimated, is_date: false},
+                    {cls: "unestimated", label: "Unestimated:", value: event.total_points_unestimated, is_date: false},
                 ],
             },
             {
                 cls: "velocities",
                 label: "Calculated Velocities",
                 items: [
-                    {cls: "min", label: "Min:", value: event.average_velocities !== undefined ? event.average_velocities.min || "" : ""},
-                    {cls: "average", label: "Avg:", value: event.average_velocities !== undefined ? event.average_velocities.average || "" : ""},
-                    {cls: "max", label: "Max:", value: event.average_velocities !== undefined ? event.average_velocities.max || "" : ""},
+                    {cls: "min", label: "Min:", value: event.average_velocities !== undefined ? event.average_velocities.min || "" : "", is_date: false},
+                    {cls: "average", label: "Avg:", value: event.average_velocities !== undefined ? event.average_velocities.average || "" : "", is_date: false},
+                    {cls: "max", label: "Max:", value: event.average_velocities !== undefined ? event.average_velocities.max || "" : "", is_date: false},
                 ],
             },
             {
                 cls: "estimated",
                 label: "Date Projections for Estimated Points",
                 items: [
-                    {cls: "min", label: "Min:", value: event.estimated_dates ? _ToDateString(event.estimated_dates.min) : ""},
-                    {cls: "average", label: "Avg:", value: event.estimated_dates ? _ToDateString(event.estimated_dates.average) : ""},
-                    {cls: "max", label: "Max:", value: event.estimated_dates ? _ToDateString(event.estimated_dates.max) : ""},
+                    {cls: "min", label: "Min:", value: event.estimated_dates ? _ToDateString(event.estimated_dates.min) : "", is_date: true},
+                    {cls: "average", label: "Avg:", value: event.estimated_dates ? _ToDateString(event.estimated_dates.average) : "", is_date: true},
+                    {cls: "max", label: "Max:", value: event.estimated_dates ? _ToDateString(event.estimated_dates.max) : "", is_date: true},
                 ],
             },
             {
                 cls: "unestimated",
                 label: "Date Projections for Remaining Points",
                 items: [
-                    {cls: "min", label: "Min:", value: event.remaining_dates ? _ToDateString(event.remaining_dates.min) : ""},
-                    {cls: "average", label: "Avg:", value: event.remaining_dates ? _ToDateString(event.remaining_dates.average) : ""},
-                    {cls: "max", label: "Max:", value: event.remaining_dates ? _ToDateString(event.remaining_dates.max) : ""},
+                    {cls: "min", label: "Min:", value: event.remaining_dates ? _ToDateString(event.remaining_dates.min) : "", is_date: true},
+                    {cls: "average", label: "Avg:", value: event.remaining_dates ? _ToDateString(event.remaining_dates.average) : "", is_date: true},
+                    {cls: "max", label: "Max:", value: event.remaining_dates ? _ToDateString(event.remaining_dates.max) : "", is_date: true},
                 ],
             },
         ] as item}
@@ -132,7 +132,7 @@
                 <div class=cols>
                     {#each item.items as item}
                         <div class="label">{item.label}</div>
-                        <input disabled type=text class="value" value={item.value} />
+                        <input disabled type=text class={`value ${item.is_date ? "date" : ""}`} value={item.value} />
                     {/each}
                 </div>
             </div>
@@ -168,5 +168,10 @@
 
                 input
                     text-align: center
-                    font-size: $content-info-font-size
+
+                    &.date
+                        font-size: $content-info-font-size - 1
+
+                    &:not(.date)
+                        font-size: $content-info-font-size
 </style>
