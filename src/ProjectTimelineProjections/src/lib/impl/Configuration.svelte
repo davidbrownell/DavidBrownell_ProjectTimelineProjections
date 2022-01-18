@@ -437,7 +437,7 @@
                 bind:this={_velocity_overrides_max_element}
             />
 
-            <label>
+            <label class=use-velocity-overrides-for-all-dates-check>
                 <input
                     type=checkbox
                     class="label use-velocity-overrides-for-all-dates-check"
@@ -476,6 +476,9 @@
 
             label.velocity-overrides-check
                 padding-top: $section-padding-size
+                grid-column: 1 / span 2
+
+            label.use-velocity-overrides-for-all-dates-check
                 grid-column: 1 / span 2
 
             .label.unestimated-velocity-factors

@@ -36,6 +36,7 @@
 
     import * as d3 from 'd3';
     import { createEventDispatcher, onMount } from 'svelte';
+import { map } from 'd3';
 
     // ----------------------------------------------------------------------
     // |  Properties
@@ -146,6 +147,8 @@
     let map_x_scaler: d3.ScaleTime<number, number>;
     let map_y_story_points_scaler: d3.ScaleLinear<number, number>;
 
+    let scaled_x_domain: [Date, Date] | undefined = undefined;
+
     $: {
         if(_is_initialized) {
             const min_map_height = 100;
@@ -221,6 +224,17 @@
                         .range([map_content_height, 0]);
 
                     map_x_scaler = original_details_x_scaler.copy();
+                }
+
+                if(scaled_x_domain !== undefined) {
+                    if(
+                        CompareDates(scaled_x_domain[0], map_x_scaler.domain()[1]) > 0
+                        || CompareDates(scaled_x_domain[1], map_x_scaler.domain()[1]) > 0
+                    ) {
+                        scaled_x_domain = undefined;
+                    }
+                    else
+                        details_x_scaler.domain(scaled_x_domain);
                 }
 
                 // Update the elements
@@ -359,6 +373,19 @@
                                     );
                             }
                         );
+
+                    // Take any scaled dates into account
+                    if(scaled_x_domain !== undefined) {
+                        const first = map_x_scaler(scaled_x_domain[0]);
+                        const second = map_x_scaler(scaled_x_domain[1]);
+
+                        map_graph.select(".brush .selection")
+                            .attr("x", first)
+                            .attr("width", second - first);
+                    }
+                    else
+                        map_graph.select(".brush .selection")
+                            .attr("width", 0);
                 }
             }
         }
@@ -846,16 +873,18 @@
             return;
 
         if(!event.selection) {
+            scaled_x_domain = undefined;
+
             details_x_scaler = original_details_x_scaler;
         }
         else {
+            scaled_x_domain = [
+                map_x_scaler.invert(event.selection[0]),
+                map_x_scaler.invert(event.selection[1]),
+            ];
+
             details_x_scaler = original_details_x_scaler.copy();
-            details_x_scaler.domain(
-                [
-                    map_x_scaler.invert(event.selection[0]),
-                    map_x_scaler.invert(event.selection[1]),
-                ],
-            );
+            details_x_scaler.domain(scaled_x_domain);
         }
 
         const this_graph = graph.select(".details");

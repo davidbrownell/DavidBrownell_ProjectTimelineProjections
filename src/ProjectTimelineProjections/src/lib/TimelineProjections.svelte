@@ -203,16 +203,15 @@
 
     // BugBug: P1
     //         ----------------------------------------
-    // BugBug: Upon configuration changes, keep same map highlight scale
-
-    // BugBug: Support for query params
-
     // BugBug: Delineate sprint boundaries
     // BugBug: labels for right axis
     // BugBug: Highlight dates
 
     // BugBug: Collapseable info sections
     // BugBug: Reset button
+
+    // BugBug: Support for query params
+
 
 
     // BugBug: P2
@@ -353,7 +352,7 @@
                                 />
                             </div>
                         </div>
-                        <!-- BugBug: Teams section of more than 1 -->
+                        <!-- TODO: Teams section of more than 1 -->
                     </div>
                 {/if}
             </div>
@@ -436,6 +435,8 @@
 
             .content-graph
                 flex: 1
+                height: 100%
+                width: 100%
 
             .content-info
                 flex: 0
@@ -455,17 +456,17 @@
 
                     width: 100%
 
-                // BugBug: This looks strange when the sections aren't displayed
+                // TODO: This looks strange when the sections aren't displayed
                 .display
                     padding-left: $content-info-indentation
                     padding-bottom: 10px
 
-                .display
-                    display: none
-
-                .stats-control
-                    .display
-                        display: unset
+                // TODO: .display
+                // TODO:     display: none
+                // TODO:
+                // TODO: .stats-control
+                // TODO:     .display
+                // TODO:         display: unset
 
         .tools
             flex: 0

@@ -14,12 +14,13 @@
     any_sprint_boundary={new Date("2022-1-5")}
     debug_mode={false}
   />
+  <!--
   <TimelineProjections
     title="Two"
     events={sample_input}
     any_sprint_boundary={new Date(2022, 0, 5)}
     debug_mode={false}
-  />
+  />-->
 </main>
 
 <style lang="sass">
