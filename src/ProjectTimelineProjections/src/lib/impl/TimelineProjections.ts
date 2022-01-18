@@ -39,11 +39,11 @@ export function CompareDates(a: Date, b: Date): number {
 export interface TimelineInputEvent {
     readonly date: Date | string;
 
-    readonly total_points_completed: number;     // across all sprints
-    readonly total_points_pending: number;       // in current sprint
-    readonly total_points_active: number;        // in current sprint
-    readonly total_points_estimated: number;     // beyond current sprint
-    readonly num_unestimated_items: number;   // beyond current sprint
+    readonly total_points_completed: number;            // across all sprints
+    readonly total_points_pending: number;              // in current sprint
+    readonly total_points_active: number;               // in current sprint
+    readonly total_points_estimated: number;            // beyond current sprint
+    readonly num_unestimated_items: number;             // beyond current sprint
 
     readonly team?: string;
     readonly opaque_data?: any;

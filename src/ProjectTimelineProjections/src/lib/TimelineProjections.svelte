@@ -49,7 +49,7 @@
 
     import { onMount } from 'svelte';
 
-    import Fa from 'svelte-fa/src/fa.svelte'
+    import Fa from 'svelte-fa/src/fa.svelte';
     import {
         faCompress,
         faExpand,
@@ -72,7 +72,7 @@
     export let unestimated_velocity_factors: [number, number] = default_unestimated_velocity_factors;
     export let velocity_overrides: StatsInfo<number> | undefined = undefined;
 
-    export let height: number | string = "800px";
+    export let height: number | string = "700px";
     export let width: number | string = "100%";
 
     export let debug_mode: boolean = false;
@@ -97,14 +97,14 @@
     let _debug_borders = debug_mode;
 
     let _timeline_projections_element: HTMLElement;
-    let _timeline_projections_height: number;
-    let _timeline_projections_width: number;
+    let _content_element: HTMLElement;
 
-    let _initial_timeline_projections_height: number;
-    let _initial_timeline_projections_width: number;
+    // Measured height and width of the element
+    let _is_full_height: boolean = false;
+    let _is_full_width: boolean = false;
 
-    let _current_height: number | undefined;
-    let _current_width: number | undefined;
+    let _content_offset_height: number;
+    let _content_offset_width: number;
 
     let _content_width: number;
     let _is_content_info_visible: boolean;
@@ -180,9 +180,19 @@
 
     $: {
         if(_mounted) {
-            if(!_is_initialized) {
-                _initial_timeline_projections_height = _timeline_projections_height;
-                _initial_timeline_projections_width = _timeline_projections_width;
+            if(
+                !_is_initialized
+                && _timeline_projections_element !== undefined
+                && _content_element !== undefined
+            ) {
+                height = (typeof height === "string" ? height : height + "px");
+                width = (typeof width === "string" ? width : width + "px");
+
+                _is_full_height = (height === "100%");
+                _is_full_width = (width === "100%");
+
+                _content_offset_height = _content_element.offsetHeight;
+                _content_offset_width = _content_element.offsetWidth;
 
                 _is_initialized = true;
             }
@@ -191,29 +201,11 @@
         }
     }
 
-    // Full screen
-    $: {
-        if(_is_initialized) {
-            if(is_fullscreen && _current_width === undefined) {
-                let parent: HTMLElement = _timeline_projections_element.parentElement;
-
-                _current_width = parent.clientWidth;
-                _current_height = parent.clientHeight;
-            }
-            else if(!is_fullscreen && _current_width !== undefined) {
-                _current_width = undefined;
-                _current_height = undefined;
-            }
-        }
-    }
-
     // BugBug: P1
     //         ----------------------------------------
-    // BugBug: Dynamic sizing no longer works as expected
-    // BugBug: Change in window width should cause resize (when width is 100%)
-    // BugBug: Restoration from fullscreen is still wonky (info not restored to original pos)
-    // BugBug: Vertical scroll bar appearing when expanding to full screen
     // BugBug: Upon configuration changes, keep same map highlight scale
+
+    // BugBug: Support for query params
 
     // BugBug: Delineate sprint boundaries
     // BugBug: labels for right axis
@@ -250,12 +242,10 @@
     class=timeline-projections
     style={
         (_debug_borders ? _debug_colors.Border() : "") +
-        `height: ${_is_initialized ? (_current_height || _initial_timeline_projections_height) + "px" : (typeof height === "string" ? height : height + "px")};` +
-        `width: ${_is_initialized ? (_current_width || _initial_timeline_projections_width) + "px" : (typeof width === "string" ? width : width + "px")};`
+        `height: ${_is_initialized ? (is_fullscreen ? "100%" : height) : (typeof height === "string" ? height : height + "px")};` +
+        `width: ${_is_initialized ? (is_fullscreen ? "100%" : width) : (typeof width === "string" ? width : width + "px")};`
     }
     bind:this={_timeline_projections_element}
-    bind:offsetHeight={_timeline_projections_height}
-    bind:offsetWidth={_timeline_projections_width}
 >
     {#if _mounted}
         {#await _init_async then data}
@@ -303,7 +293,14 @@
             -->
             <div
                 class=content
-                style={_debug_borders ? _debug_colors.Border() : ""}
+                style={
+                    (_debug_borders ? _debug_colors.Border() : "") +
+                    // It shouldn't be necessary to explicity set the height and width, but it seems
+                    // to be required to ensure that restoring from full screen works as expected.
+                    (_is_initialized && !is_fullscreen && !_is_full_height ? `height: ${_content_offset_height}px;` : "") +
+                    (_is_initialized && !is_fullscreen && !_is_full_width ? `width: ${_content_offset_width}px;` : "")
+                }
+                bind:this={_content_element}
                 bind:clientWidth={_content_width}
             >
                 <!-- Graph -->
@@ -411,11 +408,10 @@
     $content-info-indentation: 15px
 
     .timeline-projections
-        min-height: $graph-min-height * 1.2
+        min-height: max($graph-min-height, $content-info-min-height)
         min-width: $graph-min-width + $content-info-min-width
 
         position: relative
-        padding-bottom: 4em
 
         display: flex
         flex-direction: column
@@ -434,8 +430,6 @@
             flex: 1
             height: 100%
             width: 100%
-
-            padding-top: 2em
 
             display: flex
             flex-direction: row
@@ -461,16 +455,17 @@
 
                     width: 100%
 
+                // BugBug: This looks strange when the sections aren't displayed
                 .display
                     padding-left: $content-info-indentation
                     padding-bottom: 10px
 
-                // TODO: .display
-                // TODO:     display: none
-                // TODO:
-                // TODO: .stats-control
-                // TODO:     .display
-                // TODO:         display: unset
+                .display
+                    display: none
+
+                .stats-control
+                    .display
+                        display: unset
 
         .tools
             flex: 0

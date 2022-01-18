@@ -1005,6 +1005,7 @@
         @import './Variables.sass'
 
         height: 100%
+        width: 100%
 
         min-height: $graph-min-height
         min-width: $graph-min-width
