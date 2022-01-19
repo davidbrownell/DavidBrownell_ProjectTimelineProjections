@@ -70,7 +70,7 @@
         {/each}
 
         {#each [
-            {cls: "projected-average-date", label: "Average Date:"},
+            {cls: "projection-average-date", label: "Average Date:"},
             {cls: "average-velocity", label: "Average Velocity:"},
             {cls: "min-velocity", label: "Min Velocity:"},
             {cls: "max-velocity", label: "Max Velocity:"},
@@ -78,6 +78,15 @@
             <div class=label>{item.label}</div>
             <svg class={item.cls} width={_legend_item_size_num} height={_legend_item_size_num}>
                 <line x1=0 y1={_legend_item_size_num / 2} x2={_legend_item_size_num} y2={_legend_item_size_num / 2} />
+            </svg>
+        {/each}
+
+        {#each [
+            {cls: "sprint-boundary", label: "Sprint Boundary:"},
+        ] as item }
+            <div class=label>{item.label}</div>
+            <svg class={item.cls} width={_legend_item_size_num} height={_legend_item_size_num}>
+                <line x1={_legend_item_size_num / 2} y1=0 x2={_legend_item_size_num / 2} y2={_legend_item_size_num} />
             </svg>
         {/each}
     </div>

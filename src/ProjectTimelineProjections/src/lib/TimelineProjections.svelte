@@ -203,7 +203,6 @@
 
     // BugBug: P1
     //         ----------------------------------------
-    // BugBug: Delineate sprint boundaries
     // BugBug: labels for right axis
     // BugBug: Highlight dates
 
@@ -308,6 +307,8 @@
                 >
                     <Graph
                         events={_initialized_events}
+                        days_in_sprint={days_in_sprint}
+                        any_sprint_boundary={any_sprint_boundary}
                         date={_date}
                         debug_mode={debug_mode}
                         on:display_stats={(event) => { _current_event = event.detail.event; }}

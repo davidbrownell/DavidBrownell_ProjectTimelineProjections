@@ -31,6 +31,8 @@
 
     import {
         CompareDates,
+        IncrementDate,
+        NextSprintBoundary,
         TimelineOutputEvent,
     } from './TimelineProjections';
 
@@ -42,6 +44,8 @@ import { map } from 'd3';
     // |  Properties
     // ----------------------------------------------------------------------
     export let events: TimelineOutputEvent[] | undefined;
+    export let any_sprint_boundary: Date;
+    export let days_in_sprint: number;
     export let date: Date | undefined;          // Display events that fall before this date
     export let debug_mode: boolean = false;
 
@@ -147,6 +151,7 @@ import { map } from 'd3';
     let map_x_scaler: d3.ScaleTime<number, number>;
     let map_y_story_points_scaler: d3.ScaleLinear<number, number>;
 
+    let sprint_boundaries: Date[];
     let scaled_x_domain: [Date, Date] | undefined = undefined;
 
     $: {
@@ -235,6 +240,16 @@ import { map } from 'd3';
                     }
                     else
                         details_x_scaler.domain(scaled_x_domain);
+                }
+
+                // Calculate the sprint boundaries
+                sprint_boundaries = [];
+
+                let sprint_bounary = NextSprintBoundary(any_sprint_boundary, days_in_sprint, min_display_date);
+
+                while(CompareDates(sprint_bounary, map_x_scaler.domain()[1]) <= 0) {
+                    sprint_boundaries.push(sprint_bounary);
+                    sprint_bounary = IncrementDate(sprint_bounary, days_in_sprint);
                 }
 
                 // Update the elements
@@ -551,6 +566,39 @@ import { map } from 'd3';
                             },
                         );
                 }
+
+                // Sprint boundaries
+                this_graph
+                    .selectAll("line.sprint-boundary")
+                        .data(sprint_boundaries)
+                        .join(
+                            // @ts-ignore
+                            (enter: any) => {
+                                enter
+                                    .append("line")
+                                        .attr("class", "sprint-boundary")
+                                        .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
+                                        .attr("x1", graph_info.x_scaler)
+                                        .attr("x2", graph_info.x_scaler)
+                                        .attr("y1", 0)
+                                        .attr("y2", graph_info.y_story_points_scaler.range()[0]);
+                            },
+                            (update: any) => {
+                                update
+                                    .transition()
+                                    .attr("x1", graph_info.x_scaler)
+                                    .attr("x2", graph_info.x_scaler)
+                                    .attr("y1", 0)
+                                    .attr("y2", graph_info.y_story_points_scaler.range()[0]);
+                                    ;
+                            },
+                            (exit: any) => {
+                                exit
+                                    .transition()
+                                    .style("opacity", 0)
+                                    .remove();
+                            },
+                        );
             }
 
             // Projections
@@ -1040,10 +1088,12 @@ import { map } from 'd3';
         min-width: $graph-min-width
 
         svg
-            :global(g.xAxis .tick line),
+            :global(g.xAxis .tick line)
+                stroke-opacity: 0
+
             :global(g.yStoryPointsAxis .tick line)
                 stroke-opacity: 0.25
-                stroke-dasharray: 2 2
+                stroke-dasharray: 4 4
 
             :global(.details)
                 :global(.stacked)

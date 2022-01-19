@@ -111,6 +111,12 @@ Global content that can only be defined once.
         stroke-width: 2px
         opacity: 0.25
 
+    :global(.sprint-boundary)
+        fill: none
+        stroke: black
+        stroke-width: 1px
+        opacity: 0.20
+
     :global(.extension)
         opacity: 0.5
         stroke-width: $velocity-width - 2

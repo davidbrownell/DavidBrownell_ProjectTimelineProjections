@@ -149,7 +149,7 @@ export class TimelineOutputEventTeamData {
     ): Date => {
         const velocity_per_day = velocity / days_in_sprint;
         const remaining_days = remaining_points / velocity_per_day;
-        const completion_date = _IncrementDate(next_sprint_start, remaining_days);
+        const completion_date = IncrementDate(next_sprint_start, remaining_days);
 
         return _AlignDateToSprintBoundary(next_sprint_start, days_in_sprint, completion_date);
     }
@@ -470,7 +470,7 @@ export function CreateTimelineEvents(
         if(expected_date !== undefined) {
             while(expected_date.getTime() !== this_date.getTime()) {
                 results.push(CommitDateInfo(expected_date, index, index));
-                expected_date = _IncrementDate(expected_date);
+                expected_date = IncrementDate(expected_date);
             }
         }
 
@@ -482,7 +482,7 @@ export function CreateTimelineEvents(
 
         // Commit the values
         results.push(CommitDateInfo(this_date, starting_index, index));
-        expected_date = _IncrementDate(this_date);
+        expected_date = IncrementDate(this_date);
     }
 
     return results;
@@ -497,20 +497,22 @@ export function NextSprintBoundary(
     let result = _AlignDateToSprintBoundary(any_sprint_boundary, days_in_sprint, date);
 
     if(CompareDates(result, date) === 0)
-        result = _AlignDateToSprintBoundary(any_sprint_boundary, days_in_sprint, _IncrementDate(date));
+        result = _AlignDateToSprintBoundary(any_sprint_boundary, days_in_sprint, IncrementDate(date));
 
     return result;
 }
 
-// ----------------------------------------------------------------------
-// ----------------------------------------------------------------------
-// ----------------------------------------------------------------------
-function _IncrementDate(date: Date, days: number=1): Date {
+
+export function IncrementDate(date: Date, days: number=1): Date {
     var result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;
 }
 
+
+// ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 function _DaysSinceEpoch(date: Date): number {
     const milliseconds_per_day = 8.64e7;
 
@@ -527,5 +529,5 @@ function _AlignDateToSprintBoundary(
     const days_diff = align_boundary_days - sprint_boundary_days;
     const sprints_diff = Math.floor((days_diff + days_in_sprint - 1) / days_in_sprint);
 
-    return _IncrementDate(any_sprint_boundary, sprints_diff * days_in_sprint);
+    return IncrementDate(any_sprint_boundary, sprints_diff * days_in_sprint);
 }
