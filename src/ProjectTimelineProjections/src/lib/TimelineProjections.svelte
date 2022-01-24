@@ -203,18 +203,17 @@
 
     // BugBug: P1
     //         ----------------------------------------
-    // BugBug: labels for right axis
     // BugBug: Highlight dates
-
     // BugBug: Collapseable info sections
-    // BugBug: Reset button
 
-    // BugBug: Support for query params
-
+    // BugBug: Window gets to a certain point and stops scaling; why?
+    // BugBug: Map selection does not work when resize heppens
 
 
     // BugBug: P2
     //         ----------------------------------------
+    // BugBug: Support for query params
+
     // BugBug: Settings to optionally display velocities and projections
     // BugBug: Functionality to filter by team
 
@@ -438,6 +437,8 @@
                 flex: 1
                 height: 100%
                 width: 100%
+
+                padding-right: 1em
 
             .content-info
                 flex: 0

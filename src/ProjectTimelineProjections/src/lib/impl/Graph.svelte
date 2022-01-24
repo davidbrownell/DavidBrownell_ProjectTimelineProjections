@@ -38,7 +38,12 @@
 
     import * as d3 from 'd3';
     import { createEventDispatcher, onMount } from 'svelte';
-import { map } from 'd3';
+
+    import Fa from 'svelte-fa/src/fa.svelte';
+    import {
+        faUndo,
+
+    } from '@fortawesome/free-solid-svg-icons';
 
     // ----------------------------------------------------------------------
     // |  Properties
@@ -152,17 +157,48 @@ import { map } from 'd3';
     let map_y_story_points_scaler: d3.ScaleLinear<number, number>;
 
     let sprint_boundaries: Date[];
-    let scaled_x_domain: [Date, Date] | undefined = undefined;
+    let _scaled_x_domain: [Date, Date] | undefined = undefined;
+
+    let _is_story_points_scaled: boolean = false;
+
+    // ----------------------------------------------------------------------
+    function _ResetMapScaledDomain() {
+        graph.select("g.map")
+            .select(".brush .selection")
+            .attr("width", 0);
+
+        _scaled_x_domain = undefined;
+        details_x_scaler = original_details_x_scaler;
+    }
+
+    // ----------------------------------------------------------------------
+    function _ResetStoryPointsDomain() {
+        _is_story_points_scaled = false;
+
+        details_y_story_points_scaler = original_details_y_story_points_scaler.copy();
+
+        graph.select(".details")
+            .select(".yStoryPointsAxis")
+                .call(
+                    // @ts-ignore
+                    d3.axisLeft(details_y_story_points_scaler)
+                        .tickSize(-content_width)
+                        .tickPadding(axis_padding)
+                );
+    }
+
+    // ----------------------------------------------------------------------
+
+    const min_map_height = 100;
+
+    const margin_bottom = 30;
+    const margin_left = 60;
+    const margin_right = 60;
+    const margin_top = 10;
+    const padding = 35;
 
     $: {
         if(_is_initialized) {
-            const min_map_height = 100;
-
-            const margin_bottom = 30;
-            const margin_left = 60;
-            const margin_right = 60;
-            const margin_top = 10;
-            const padding = 35;
             const scalers_scaler = 1.1;
 
             if(
@@ -231,15 +267,15 @@ import { map } from 'd3';
                     map_x_scaler = original_details_x_scaler.copy();
                 }
 
-                if(scaled_x_domain !== undefined) {
+                if(_scaled_x_domain !== undefined) {
                     if(
-                        CompareDates(scaled_x_domain[0], map_x_scaler.domain()[1]) > 0
-                        || CompareDates(scaled_x_domain[1], map_x_scaler.domain()[1]) > 0
+                        CompareDates(_scaled_x_domain[0], map_x_scaler.domain()[1]) > 0
+                        || CompareDates(_scaled_x_domain[1], map_x_scaler.domain()[1]) > 0
                     ) {
-                        scaled_x_domain = undefined;
+                        _ResetMapScaledDomain();
                     }
                     else
-                        details_x_scaler.domain(scaled_x_domain);
+                        details_x_scaler.domain(_scaled_x_domain);
                 }
 
                 // Calculate the sprint boundaries
@@ -329,34 +365,35 @@ import { map } from 'd3';
                         },
                     );
 
-                // graph
-                //     .selectAll("text.yVelocityAxisLabel")
-                //     .data([undefined])
-                //     .join(
-                //         // @ts-ignore
-                //         (enter: any) => {
-                //             enter
-                //                 .append("text")
-                //                     .attr("class", "yVelocityAxisLabel")
-                //                     .attr("transform", "rotate(-90)")
-                //                     .attr("y", working_width) 0 - working_width)
-                //                     .attr("x", -(details_working_height / 2))
-                //                     //.attr("dy", "1em")
-                //                     .style("text-anchor", "middle")
-                //                     .text("Velocities");
-                //         },
-                //         (update: any) => {
-                //             update
-                //                 .attr("x", 0 - (details_working_height / 2))
-                //                 .transition();
-                //         },
-                //         (exit: any) => {
-                //             exit
-                //                 .transition()
-                //                 .style("opacity", 0)
-                //                 .remove();
-                //         },
-                //     );
+                graph
+                    .selectAll("text.yVelocityAxisLabel")
+                    .data([undefined])
+                    .join(
+                        // @ts-ignore
+                        (enter: any) => {
+                            enter
+                                .append("text")
+                                    .attr("class", "yVelocityAxisLabel")
+                                    .attr("transform", "rotate(90)")
+                                    .attr("y", -_content_width)
+                                    .attr("x", (details_content_height / 2))
+                                    .attr("dy", "1em")
+                                    .style("text-anchor", "middle")
+                                    .text("Team Velocities");
+                        },
+                        (update: any) => {
+                            update
+                                .attr("x", (details_content_height / 2))
+                                .attr("y", -_content_width)
+                                .transition();
+                        },
+                        (exit: any) => {
+                            exit
+                                .transition()
+                                .style("opacity", 0)
+                                .remove();
+                        },
+                    );
 
                 if(!_is_map_hidden) {
                     graph.select(`#clip-path-map-${_unique_id} rect`)
@@ -390,17 +427,14 @@ import { map } from 'd3';
                         );
 
                     // Take any scaled dates into account
-                    if(scaled_x_domain !== undefined) {
-                        const first = map_x_scaler(scaled_x_domain[0]);
-                        const second = map_x_scaler(scaled_x_domain[1]);
+                    if(_scaled_x_domain !== undefined) {
+                        const first = map_x_scaler(_scaled_x_domain[0]);
+                        const second = map_x_scaler(_scaled_x_domain[1]);
 
                         map_graph.select(".brush .selection")
                             .attr("x", first)
                             .attr("width", second - first);
                     }
-                    else
-                        map_graph.select(".brush .selection")
-                            .attr("width", 0);
                 }
             }
         }
@@ -899,6 +933,8 @@ import { map } from 'd3';
             details_y_story_points_scaler.domain([0, rescaled.domain()[1] - rescaled.domain()[0]]);
         }
 
+        _is_story_points_scaled = true;
+
         const this_graph = graph.select(".details");
 
         this_graph.select(".yStoryPointsAxis")
@@ -921,18 +957,16 @@ import { map } from 'd3';
             return;
 
         if(!event.selection) {
-            scaled_x_domain = undefined;
-
-            details_x_scaler = original_details_x_scaler;
+            _ResetMapScaledDomain();
         }
         else {
-            scaled_x_domain = [
+            _scaled_x_domain = [
                 map_x_scaler.invert(event.selection[0]),
                 map_x_scaler.invert(event.selection[1]),
             ];
 
             details_x_scaler = original_details_x_scaler.copy();
-            details_x_scaler.domain(scaled_x_domain);
+            details_x_scaler.domain(_scaled_x_domain);
         }
 
         const this_graph = graph.select(".details");
@@ -1066,6 +1100,25 @@ import { map } from 'd3';
                     </g>
                 {/if}
             </svg>
+
+            <div class=controls>
+                <button
+                    class=details
+                    style={`bottom: ${min_map_height + margin_bottom + padding}px`}
+                    disabled={!_is_story_points_scaled}
+                    on:click={_ResetStoryPointsDomain}
+                >
+                    <Fa icon={faUndo} />
+                </button>
+                <button
+                    class=map
+                    style={`bottom: ${margin_bottom}px`}
+                    disabled={_scaled_x_domain === undefined}
+                    on:click={_ResetMapScaledDomain}
+                >
+                    <Fa icon={faUndo} />
+                </button>
+            </div>
         </div>
     {/await}
 {/if}
@@ -1106,4 +1159,9 @@ import { map } from 'd3';
                 :global(.projection)
                     opacity: .5
                     stroke-width: 1px
+
+        .controls
+            button
+                position: absolute
+                right: 0
 </style>
