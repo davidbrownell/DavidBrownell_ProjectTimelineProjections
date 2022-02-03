@@ -51,10 +51,13 @@
 
     import Fa from 'svelte-fa/src/fa.svelte';
     import {
+        faChevronCircleRight,
         faCompress,
         faExpand,
 
     } from '@fortawesome/free-solid-svg-icons';
+
+    import { CollapsibleCard } from 'svelte-collapsible'
 
     // ----------------------------------------------------------------------
     // |  Properties
@@ -204,11 +207,14 @@
     // BugBug: P1
     //         ----------------------------------------
     // BugBug: Highlight dates
-    // BugBug: Collapseable info sections
 
     // BugBug: Window gets to a certain point and stops scaling; why?
-    // BugBug: Map selection does not work when resize heppens
-
+    // BugBug: Map selection does not scale correctly when resize heppens
+    // BugBug:
+    //          - Refresh, scrollbars
+    //          - Collapse section, no scrollbars, graph size changes
+    //          - Expand section, scrollbars, graph size does not change
+    //          - GRAPH SHOULD CHANGE
 
     // BugBug: P2
     //         ----------------------------------------
@@ -320,26 +326,35 @@
                         class=content-info
                         style={_debug_borders ? _debug_colors.Border() : ""}
                     >
-                        <div class=stats-control>
-                            <div class=header>Stats</div>
-                            <div class=display>
+                        <CollapsibleCard open={true}>
+                            <div slot=header>
+                                <Fa icon={faChevronCircleRight} />
+                                <div class=title>Stats</div>
+                            </div>
+                            <p slot=body>
                                 <Stats
                                     event={_current_event}
                                     debug_mode={debug_mode}
                                 />
-                            </div>
-                        </div>
+                            </p>
+                        </CollapsibleCard>
 
-                        <div class=legend-control>
-                            <div class=header>Legend</div>
-                            <div class=display>
+                        <CollapsibleCard open={false}>
+                            <div slot=header>
+                                <Fa icon={faChevronCircleRight} />
+                                <div class=title>Legend</div>
+                            </div>
+                            <p slot=body>
                                 <Legend />
-                            </div>
-                        </div>
+                            </p>
+                        </CollapsibleCard>
 
-                        <div class=configuration-control>
-                            <div class=header>Configuration</div>
-                            <div class=display>
+                        <CollapsibleCard open={false}>
+                            <div slot=header>
+                                <Fa icon={faChevronCircleRight} />
+                                <div class=title>Configuration</div>
+                            </div>
+                            <p slot=body>
                                 <Configuration
                                     config={_configuration}
                                     debug_mode={debug_mode}
@@ -350,9 +365,8 @@
                                         }
                                     }
                                 />
-                            </div>
-                        </div>
-                        <!-- TODO: Teams section of more than 1 -->
+                            </p>
+                        </CollapsibleCard>
                     </div>
                 {/if}
             </div>
@@ -406,7 +420,7 @@
 
     $content-info-indentation: 15px
 
-    .timeline-projections
+    :global(.timeline-projections)
         min-height: max($graph-min-height, $content-info-min-height)
         min-width: $graph-min-width + $content-info-min-width
 
@@ -425,7 +439,7 @@
             .description
                 padding-left: 1em
 
-        .content
+        :global(.content)
             flex: 1
             height: 100%
             width: 100%
@@ -440,35 +454,23 @@
 
                 padding-right: 1em
 
-            .content-info
+            :global(.content-info)
                 flex: 0
                 min-width: $content-info-min-width + $content-info-indentation
                 max-width: $content-info-min-width + $content-info-indentation
 
-                .header
-                    background-color: lightgray
-
-                    cursor: pointer
-
-                    font-size: 1.25em
-
-                    margin-top: 5px
-                    margin-bottom: 5px
-                    padding: 2px
-
-                    width: 100%
-
-                // TODO: This looks strange when the sections aren't displayed
-                .display
-                    padding-left: $content-info-indentation
+                :global(.card)
                     padding-bottom: 10px
 
-                // TODO: .display
-                // TODO:     display: none
-                // TODO:
-                // TODO: .stats-control
-                // TODO:     .display
-                // TODO:         display: unset
+                    :global(.card-header)
+                        .title
+                            display: inline-block
+                            font-size: 1.25em
+
+                :global(.card.open)
+                    :global(.card-header)
+                        :global(svg)
+                            transform: rotate(90deg)
 
         .tools
             flex: 0

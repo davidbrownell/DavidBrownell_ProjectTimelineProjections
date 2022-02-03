@@ -2,15 +2,15 @@
     import TimelineProjections from './lib/TimelineProjections.svelte';
     import TimelineProjectionsGlobal from './lib/TimelineProjectionsGlobal.svelte';
     import sample_input from './assets/sample_input.json'
+    import initial_project from './assets/initial_project.json'
 </script>
 
 <main>
   <TimelineProjectionsGlobal />
 
   <TimelineProjections
-    title="One"
-    description="With desc"
-    events={sample_input}
+    title="SaaS Projections"
+    events={initial_project}
     any_sprint_boundary={new Date("2022-1-5")}
     debug_mode={false}
   />

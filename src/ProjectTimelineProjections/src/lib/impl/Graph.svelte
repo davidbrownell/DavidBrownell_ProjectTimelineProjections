@@ -229,21 +229,18 @@
                 );
 
                 // Update the scalers
-                details_y_velocity_scaler = d3.scaleLinear()
-                    .domain(
+                const max_velocity = d3.max(
+                    events,
+                    (event) => d3.max(
                         [
-                            0,
-                            d3.max(
-                                events,
-                                (event) => d3.max(
-                                    [
-                                        event.average_velocities !== undefined ? event.average_velocities.max : undefined,
-                                        event.velocity_overrides !== undefined ? event.velocity_overrides.max : undefined,
-                                    ],
-                                ),
-                            ) * scalers_scaler,
-                        ]
-                    )
+                            event.average_velocities !== undefined ? event.average_velocities.max : undefined,
+                            event.velocity_overrides !== undefined ? event.velocity_overrides.max : undefined,
+                        ],
+                    ),
+                ) * scalers_scaler;
+
+                details_y_velocity_scaler = d3.scaleLinear()
+                    .domain([0, max_velocity || 1])
                     .range([details_content_height, 0]);
 
                 details_y_story_points_scaler = d3.scaleLinear()
@@ -668,7 +665,7 @@
                     // Projection
                     let projection_commands: string[];
 
-                    if(dates !== undefined) {
+                    if(dates !== undefined && starting_points !== ending_points) {
                         projection_commands = [
                             `M ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(ending_points)}`,
                             `L ${graph_info.x_scaler(dates.max)} ${graph_info.y_scaler(0)}`,
@@ -763,37 +760,39 @@
                         }
                         else {
                             commands = [
-                                `M ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(starting_points)}`,
-                                `L ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(ending_points)}`,
+                                `M ${graph_info.x_scaler(this_date)} 0`,
+                                `L ${graph_info.x_scaler(this_date)} 0`,
                             ];
                         }
 
-                        const commands_str = commands.join(" ");
+                        // TODO: The perf for this code is pretty bad; figure out what is going on
 
-                        this_graph
-                            .selectAll(`path.accent.${accent_info.cls}.${cls}${is_background ? ".background" : ""}`)
-                                .data([commands_str])
-                                .join(
-                                    // @ts-ignore
-                                    (enter: any) => {
-                                        enter
-                                            .append("path")
-                                                .attr("class", `accent ${accent_info.cls} ${cls} ${is_background ? "background" : ""}`)
-                                                .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
-                                                .attr("d", commands_str);
-                                    },
-                                    (update: any) => {
-                                        update
-                                            .transition()
-                                            .attr("d", commands_str);
-                                    },
-                                    (exit: any) => {
-                                        exit
-                                            .transition()
-                                            .style("opacity", 0)
-                                            .remove();
-                                    },
-                                );
+                        // const commands_str = commands.join(" ");
+                        //
+                        // this_graph
+                        //     .selectAll(`path.accent.${accent_info.cls}.${cls}${is_background ? ".background" : ""}`)
+                        //         .data([commands_str])
+                        //         .join(
+                        //             // @ts-ignore
+                        //             (enter: any) => {
+                        //                 enter
+                        //                     .append("path")
+                        //                         .attr("class", `accent ${accent_info.cls} ${cls} ${is_background ? "background" : ""}`)
+                        //                         .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
+                        //                         .attr("d", commands_str);
+                        //             },
+                        //             (update: any) => {
+                        //                 update
+                        //                     .transition()
+                        //                     .attr("d", commands_str);
+                        //             },
+                        //             (exit: any) => {
+                        //                 exit
+                        //                     .transition()
+                        //                     .style("opacity", 0)
+                        //                     .remove();
+                        //             },
+                        //         );
                     }
                 }
             }

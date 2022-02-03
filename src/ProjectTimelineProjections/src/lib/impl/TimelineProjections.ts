@@ -134,6 +134,13 @@ export class TimelineOutputEventTeamData {
         if(velocities === undefined)
             return undefined;
 
+        if(
+            velocities.min === 0
+            && velocities.average === 0
+            && velocities.max === 0
+        )
+            return undefined;
+
         return new StatsInfo<Date>(
             this._ProjectDate(next_sprint_start, days_in_sprint, total_points, velocities.average),
             this._ProjectDate(next_sprint_start, days_in_sprint, total_points, velocities.max),
@@ -147,6 +154,9 @@ export class TimelineOutputEventTeamData {
         remaining_points: number,
         velocity: number
     ): Date => {
+        if(velocity === 0)
+            return new Date("2100-12-31");
+
         const velocity_per_day = velocity / days_in_sprint;
         const remaining_days = remaining_points / velocity_per_day;
         const completion_date = IncrementDate(next_sprint_start, remaining_days);
