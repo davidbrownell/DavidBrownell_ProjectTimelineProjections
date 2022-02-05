@@ -52,6 +52,10 @@
     export let any_sprint_boundary: Date;
     export let days_in_sprint: number;
     export let date: Date | undefined;          // Display events that fall before this date
+
+    export let display_point_projections: boolean = true;
+    export let display_velocity_extensions: boolean = true;
+
     export let debug_mode: boolean = false;
 
     // Events:
@@ -665,7 +669,11 @@
                     // Projection
                     let projection_commands: string[];
 
-                    if(dates !== undefined && starting_points !== ending_points) {
+                    if(
+                        display_point_projections
+                        && dates !== undefined
+                        && starting_points !== ending_points
+                    ) {
                         projection_commands = [
                             `M ${graph_info.x_scaler(this_date)} ${graph_info.y_scaler(ending_points)}`,
                             `L ${graph_info.x_scaler(dates.max)} ${graph_info.y_scaler(0)}`,
@@ -829,13 +837,18 @@
                         .x(details_x_scaler)
                         .y(y_pos);
 
+                    const data = (
+                        () => {
+                            if(display_velocity_extensions)
+                                return [this_date, details_x_scaler.domain()[1]];
+
+                            return [0, 0];
+                        }
+                    )();
+
                     this_graph
                         .selectAll(`path.extension.${extension_info.cls}${is_background ? ".background" : ""}`)
-                        .data(
-                            [
-                                [this_date, details_x_scaler.domain()[1]]
-                            ]
-                        )
+                        .data([data])
                         .join(
                             // @ts-ignore
                             (enter: any) => {

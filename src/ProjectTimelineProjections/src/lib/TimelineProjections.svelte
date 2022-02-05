@@ -45,6 +45,7 @@
     import DateControl from './impl/DateControl.svelte';
     import Graph from './impl/Graph.svelte';
     import Legend from './impl/Legend.svelte';
+    import Settings from './impl/Settings.svelte';
     import Stats from './impl/Stats.svelte';
 
     import { onMount } from 'svelte';
@@ -74,6 +75,10 @@
     export let use_previous_n_sprints_for_average_velocity: number | undefined = undefined; // When calcualting velocity, limit calculations to the last N sprints; all sprints are used if the value is undefined.
     export let unestimated_velocity_factors: [number, number] = default_unestimated_velocity_factors;
     export let velocity_overrides: StatsInfo<number> | undefined = undefined;
+
+    export let display_point_projections: boolean = true;
+    export let display_velocity_extensions: boolean = true;
+    export let frame_milliseconds: number = 200;
 
     export let height: number | string = "700px";
     export let width: number | string = "100%";
@@ -208,7 +213,6 @@
     //         ----------------------------------------
     // TODO: Support for query params
 
-    // TODO: Settings to optionally display velocities and projections
     // TODO: Functionality to filter by team
 </script>
 
@@ -293,6 +297,8 @@
                         days_in_sprint={days_in_sprint}
                         any_sprint_boundary={any_sprint_boundary}
                         date={_date}
+                        display_point_projections={display_point_projections}
+                        display_velocity_extensions={display_velocity_extensions}
                         debug_mode={debug_mode}
                         on:display_stats={(event) => { _current_event = event.detail.event; }}
                     />
@@ -348,6 +354,21 @@
                                     />
                                 </p>
                             </AccordionItem>
+
+                            <AccordionItem key=settings>
+                                <div slot=header>
+                                    <Fa icon={faChevronCircleRight} />
+                                    <div class=title>Settings</div>
+                                </div>
+                                <p slot=body>
+                                    <Settings
+                                        bind:display_point_projections={display_point_projections}
+                                        bind:display_velocity_extensions={display_velocity_extensions}
+                                        bind:frame_milliseconds={frame_milliseconds}
+                                        debug_mode={debug_mode}
+                                    />
+                                </p>
+                            </AccordionItem>
                         </Accordion>
                     </div>
                 {/if}
@@ -366,6 +387,7 @@
                         date={date}
                         min_date={_initialized_min_date}
                         max_date={_initialized_max_date}
+                        play_speed_milliseconds={frame_milliseconds}
                         debug_mode={debug_mode}
                         on:date_change={(event) => { _date = event.detail.date; }}
                     />
