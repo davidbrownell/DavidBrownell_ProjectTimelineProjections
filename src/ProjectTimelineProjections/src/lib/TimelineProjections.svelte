@@ -57,7 +57,7 @@
 
     } from '@fortawesome/free-solid-svg-icons';
 
-    import { CollapsibleCard } from 'svelte-collapsible'
+    import { Accordion, AccordionItem } from 'svelte-collapsible'
 
     // ----------------------------------------------------------------------
     // |  Properties
@@ -204,34 +204,12 @@
         }
     }
 
-    // BugBug: P1
+    // TODO: P2
     //         ----------------------------------------
-    // BugBug: Highlight dates
+    // TODO: Support for query params
 
-    // BugBug: Window gets to a certain point and stops scaling; why?
-    // BugBug: Map selection does not scale correctly when resize heppens
-    // BugBug:
-    //          - Refresh, scrollbars
-    //          - Collapse section, no scrollbars, graph size changes
-    //          - Expand section, scrollbars, graph size does not change
-    //          - GRAPH SHOULD CHANGE
-
-    // BugBug: P2
-    //         ----------------------------------------
-    // BugBug: Support for query params
-
-    // BugBug: Settings to optionally display velocities and projections
-    // BugBug: Functionality to filter by team
-
-    // BugBug: Consistent use of parameters and state; state should be internal class
-    // BugBug: Establish consistent svelte model: mounted (onMount) -> synced (promise created during mount is complete) -> initialized (parameters are populated)
-
-    // BugBug: Horizontally align content in legend and configuration (similar to stats)
-
-
-
-
-
+    // TODO: Settings to optionally display velocities and projections
+    // TODO: Functionality to filter by team
 </script>
 
 <!--
@@ -326,47 +304,51 @@
                         class=content-info
                         style={_debug_borders ? _debug_colors.Border() : ""}
                     >
-                        <CollapsibleCard open={true}>
-                            <div slot=header>
-                                <Fa icon={faChevronCircleRight} />
-                                <div class=title>Stats</div>
-                            </div>
-                            <p slot=body>
-                                <Stats
-                                    event={_current_event}
-                                    debug_mode={debug_mode}
-                                />
-                            </p>
-                        </CollapsibleCard>
+                        <Accordion
+                            key={"stats"}
+                        >
+                            <AccordionItem key=stats>
+                                <div slot=header>
+                                    <Fa icon={faChevronCircleRight} />
+                                    <div class=title>Stats</div>
+                                </div>
+                                <p slot=body>
+                                    <Stats
+                                        event={_current_event}
+                                        debug_mode={debug_mode}
+                                    />
+                                </p>
+                            </AccordionItem>
 
-                        <CollapsibleCard open={false}>
-                            <div slot=header>
-                                <Fa icon={faChevronCircleRight} />
-                                <div class=title>Legend</div>
-                            </div>
-                            <p slot=body>
-                                <Legend />
-                            </p>
-                        </CollapsibleCard>
+                            <AccordionItem key=legend>
+                                <div slot=header>
+                                    <Fa icon={faChevronCircleRight} />
+                                    <div class=title>Legend</div>
+                                </div>
+                                <p slot=body>
+                                    <Legend />
+                                </p>
+                            </AccordionItem>
 
-                        <CollapsibleCard open={false}>
-                            <div slot=header>
-                                <Fa icon={faChevronCircleRight} />
-                                <div class=title>Configuration</div>
-                            </div>
-                            <p slot=body>
-                                <Configuration
-                                    config={_configuration}
-                                    debug_mode={debug_mode}
-                                    on:config_change={
-                                        (event) => {
-                                            _configuration = event.detail.config;
-                                            _initialized_events = _initialized_events;
+                            <AccordionItem key=configuration>
+                                <div slot=header>
+                                    <Fa icon={faChevronCircleRight} />
+                                    <div class=title>Configuration</div>
+                                </div>
+                                <p slot=body>
+                                    <Configuration
+                                        config={_configuration}
+                                        debug_mode={debug_mode}
+                                        on:config_change={
+                                            (event) => {
+                                                _configuration = event.detail.config;
+                                                _initialized_events = _initialized_events;
+                                            }
                                         }
-                                    }
-                                />
-                            </p>
-                        </CollapsibleCard>
+                                    />
+                                </p>
+                            </AccordionItem>
+                        </Accordion>
                     </div>
                 {/if}
             </div>
@@ -459,16 +441,17 @@
                 min-width: $content-info-min-width + $content-info-indentation
                 max-width: $content-info-min-width + $content-info-indentation
 
-                :global(.card)
-                    padding-bottom: 10px
+                :global(.accordion)
+                    :global(li)
+                        padding-bottom: 10px
 
-                    :global(.card-header)
-                        .title
-                            display: inline-block
-                            font-size: 1.25em
+                        :global(.accordion-item-header)
+                            .title
+                                display: inline-block
+                                font-size: 1.25em
 
-                :global(.card.open)
-                    :global(.card-header)
+                :global([aria-expanded="true"])
+                    :global(.accordion-item-header)
                         :global(svg)
                             transform: rotate(90deg)
 

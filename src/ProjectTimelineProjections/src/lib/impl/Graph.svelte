@@ -947,7 +947,68 @@
 
     // ----------------------------------------------------------------------
     function OnMouse(event: any) {
-        console.log(`BugBug: OnMouse`);
+        let highlight_line_points: any;
+
+        if(event.type === "mouseout") {
+            highlight_line_points = [];
+            _highlighted_event = undefined;
+        }
+        else {
+            let x: number = event.layerX - margin_left;
+            let highlighted_date = details_x_scaler.invert(x);
+
+            highlighted_date.setHours(0, 0, 0, 0);
+
+            x = details_x_scaler(highlighted_date);
+
+            highlight_line_points = [
+                `M ${x} 0`,
+                `L ${x} ${details_content_height}`,
+            ];
+
+            let highlighted_event = null;
+
+            _events.forEach(
+                (event) => {
+                    if(CompareDates(event.date, highlighted_date) === 0) {
+                        highlighted_event = event;
+                    }
+                }
+            );
+
+            if(highlighted_event === null) {
+                if(CompareDates(highlighted_date, _events[0].date) <= 0)
+                    highlighted_event = _events[0];
+                else
+                    highlighted_event = _events[_events.length - 1];
+            }
+
+            dispatch("display_stats", { event: highlighted_event });
+
+            _highlighted_event = highlighted_event;
+        }
+
+        highlight_line_points = highlight_line_points.join(" ");
+
+        const this_graph = graph.select(".details");
+
+        this_graph.selectAll(".highlight-line")
+            .data([highlight_line_points])
+            .join(
+                // @ts-ignore
+                (enter: any) => {
+                    enter.insert("path", ".mouse-and-zoom")
+                        .attr("class", "highlight-line")
+                        .attr("clip-path", `url(#clip-path-.details-${_unique_id})`)
+                        .attr("d", highlight_line_points);
+                },
+                (update: any) => {
+                    update.attr("d", highlight_line_points);
+                },
+                (exit: any) => {
+                    exit.remove();
+                },
+            );
     }
 
     // ----------------------------------------------------------------------
@@ -1158,6 +1219,14 @@
                 :global(.projection)
                     opacity: .5
                     stroke-width: 1px
+
+                :global(path.highlight-line)
+                    fill: none
+                    stroke-width: 2px
+                    stroke: red
+
+                :global(.background)
+                    display: none
 
         .controls
             button
