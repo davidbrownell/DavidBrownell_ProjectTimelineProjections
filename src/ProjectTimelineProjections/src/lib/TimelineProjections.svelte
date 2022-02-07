@@ -209,12 +209,6 @@
             _is_content_info_visible = _content_width > (_content_info_width * 2);
         }
     }
-
-    // TODO: P2
-    //         ----------------------------------------
-    // TODO: Support for query params
-
-    // TODO: Functionality to filter by team
 </script>
 
 <!--
