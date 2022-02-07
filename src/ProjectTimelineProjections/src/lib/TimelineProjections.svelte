@@ -47,6 +47,7 @@
     import Legend from './impl/Legend.svelte';
     import Settings from './impl/Settings.svelte';
     import Stats from './impl/Stats.svelte';
+    import Teams from './impl/Teams.svelte';
 
     import { onMount } from 'svelte';
 
@@ -365,6 +366,18 @@
                                         bind:display_point_projections={display_point_projections}
                                         bind:display_velocity_extensions={display_velocity_extensions}
                                         bind:frame_milliseconds={frame_milliseconds}
+                                        debug_mode={debug_mode}
+                                    />
+                                </p>
+                            </AccordionItem>
+
+                            <AccordionItem key=teams>
+                                <div slot=header>
+                                    <Fa icon={faChevronCircleRight} />
+                                    <div class=title>Teams</div>
+                                </div>
+                                <p slot=body>
+                                    <Teams
                                         debug_mode={debug_mode}
                                     />
                                 </p>
