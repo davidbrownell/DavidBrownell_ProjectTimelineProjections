@@ -60,7 +60,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnFramerate(event) {
+    function OnFramerate(event: any) {
         const value = (
             () => {
                 if(!event.target.value)

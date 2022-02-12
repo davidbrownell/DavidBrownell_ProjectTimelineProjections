@@ -3,7 +3,7 @@
 
     import TimelineProjections from './lib/TimelineProjections.svelte';
     import TimelineProjectionsGlobal from './lib/TimelineProjectionsGlobal.svelte';
-    import sample_input from './assets/sample_input.json'
+    //import sample_input from './assets/sample_input.json'
     import initial_project from './assets/initial_project.json'
 
     // ----------------------------------------------------------------------
@@ -11,8 +11,8 @@
     // ----------------------------------------------------------------------
     let _title: string;
     let _description: string;
-    let _events;
-    let _any_sprint_boundary;
+    let _events: any;
+    let _any_sprint_boundary: Date;
     let _debug_mode = false;
 
     // ----------------------------------------------------------------------
@@ -42,7 +42,7 @@
                             response.json().then(
                                 (json) => {
                                     // ----------------------------------------------------------------------
-                                    function GetData(key, is_required) {
+                                    function GetData(key: string, is_required: boolean) {
                                         if(!json.hasOwnProperty(key)) {
                                             if(is_required)
                                                 console.log(`ERROR: The key '${key}' was not found in the returned data`);

@@ -83,7 +83,7 @@
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
-    let _init_async;
+    let _init_async: any;
     let _mounted = false;
     let _is_initialized = false;
 
@@ -128,9 +128,9 @@
             const is_valid_date_func = (
                 () => {
                     if(date === undefined)
-                        return (event) => true;
+                        return (_event: TimelineOutputEvent) => true;
 
-                    return (event) => CompareDates(event.date, date) <= 0;
+                    return (event: TimelineOutputEvent) => CompareDates(event.date, date) <= 0;
                 }
             )();
 
@@ -488,7 +488,7 @@
                         // @ts-ignore
                         (enter: any) => {
                             enter.append("path")
-                                .attr("class", (event: any, key: number) => `stacked ${Object.keys(fill_groups)[key]}`)
+                                .attr("class", (_event: any, key: number) => `stacked ${Object.keys(fill_groups)[key]}`)
                                 .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id})`)
                                 .attr("d", area_calc);
                         },
@@ -512,36 +512,36 @@
                         {
                             cls: "points-completed",
                             category: "accent",
-                            y_func: (event) => event.total_points_completed,
-                            defined_func: (event) => event.total_points_completed !== 0,
+                            y_func: (event: TimelineOutputEvent) => event.total_points_completed,
+                            defined_func: (event: TimelineOutputEvent) => event.total_points_completed !== 0,
                             scaler: graph_info.y_story_points_scaler,
                         },
                         {
                             cls: "points-active",
                             category: "accent",
-                            y_func: (event) => event.total_points_completed + event.total_points_active,
-                            defined_func: (event) => event.total_points_active !== 0,
+                            y_func: (event: TimelineOutputEvent) => event.total_points_completed + event.total_points_active,
+                            defined_func: (event: TimelineOutputEvent) => event.total_points_active !== 0,
                             scaler: graph_info.y_story_points_scaler,
                         },
                         {
                             cls: "points-pending",
                             category: "accent",
-                            y_func: (event) => event.total_points_completed + event.total_points_active + event.total_points_pending,
-                            defined_func: (event) => event.total_points_pending !== 0,
+                            y_func: (event: TimelineOutputEvent) => event.total_points_completed + event.total_points_active + event.total_points_pending,
+                            defined_func: (event: TimelineOutputEvent) => event.total_points_pending !== 0,
                             scaler: graph_info.y_story_points_scaler,
                         },
                         {
                             cls: "points-estimated",
                             category: "accent",
-                            y_func: (event) => event.total_points_completed + event.total_points_active + event.total_points_pending + event.total_points_estimated,
-                            defined_func: (event) => event.total_points_estimated !== 0,
+                            y_func: (event: TimelineOutputEvent) => event.total_points_completed + event.total_points_active + event.total_points_pending + event.total_points_estimated,
+                            defined_func: (event: TimelineOutputEvent) => event.total_points_estimated !== 0,
                             scaler: graph_info.y_story_points_scaler,
                         },
                         {
                             cls: "points-unestimated",
                             category: "accent",
-                            y_func: (event) => event.total_points_completed + event.total_points_active + event.total_points_pending + event.total_points_estimated + event.total_points_unestimated,
-                            defined_func: (event) => event.total_points_unestimated !== 0,
+                            y_func: (event: TimelineOutputEvent) => event.total_points_completed + event.total_points_active + event.total_points_pending + event.total_points_estimated + event.total_points_unestimated,
+                            defined_func: (event: TimelineOutputEvent) => event.total_points_unestimated !== 0,
                             scaler: graph_info.y_story_points_scaler,
                         },
 
@@ -549,22 +549,22 @@
                         {
                             cls: "min-velocity",
                             category: "velocity",
-                            y_func: (event) => (event.velocity_overrides || event.average_velocities).min,
-                            defined_func: (event) => event.velocity_overrides || event.average_velocities,
+                            y_func: (event: TimelineOutputEvent) => (event.velocity_overrides || event.average_velocities).min,
+                            defined_func: (event: TimelineOutputEvent) => event.velocity_overrides || event.average_velocities,
                             scaler: graph_info.y_velocity_scaler,
                         },
                         {
                             cls: "average-velocity",
                             category: "velocity",
-                            y_func: (event) => (event.velocity_overrides || event.average_velocities).average,
-                            defined_func: (event) => event.velocity_overrides || event.average_velocities,
+                            y_func: (event: TimelineOutputEvent) => (event.velocity_overrides || event.average_velocities).average,
+                            defined_func: (event: TimelineOutputEvent) => event.velocity_overrides || event.average_velocities,
                             scaler: graph_info.y_velocity_scaler,
                         },
                         {
                             cls: "max-velocity",
                             category: "velocity",
-                            y_func: (event) => (event.velocity_overrides || event.average_velocities).max,
-                            defined_func: (event) => event.velocity_overrides || event.average_velocities,
+                            y_func: (event: TimelineOutputEvent) => (event.velocity_overrides || event.average_velocities).max,
+                            defined_func: (event: TimelineOutputEvent) => event.velocity_overrides || event.average_velocities,
                             scaler: graph_info.y_velocity_scaler,
                         },
                     ]
@@ -575,7 +575,8 @@
                     const calc = d3.line()
                         .x((event: any) => graph_info.x_scaler(event.date))
                         .y((event: any) => data.scaler(data.y_func(event)))
-                        .defined((event: any) => data.defined_func(event));
+                        // @ts-ignore
+                        .defined((event: TimelineOutputEvent) => data.defined_func(event));
 
                     this_graph
                         .selectAll(`path.${data.cls}.${data.category}`)
@@ -721,87 +722,88 @@
                         continue;
 
                     // Accent lines
-                    for(
-                        let accent_info of [
-                            {
-                                cls: "projection-average-date",
-                                start: [
-                                    graph_info.x_scaler(this_date),
-                                    (graph_info.y_scaler(starting_points) + graph_info.y_scaler(ending_points)) / 2,
-                                ],
-                                end: [
-                                    graph_info.x_scaler(dates ? dates.average : 0),
-                                    graph_info.y_scaler(0),
-                                ],
-                            },
-                            {
-                                cls: "projection-highlight-min",
-                                start: [
-                                    graph_info.x_scaler(this_date),
-                                    graph_info.y_scaler(starting_points),
-                                ],
-                                end: [
-                                    graph_info.x_scaler(dates ? dates.min : 0),
-                                    graph_info.y_scaler(0),
-                                ],
-                            },
-                            {
-                                cls: "projection-highlight-max",
-                                start: [
-                                    graph_info.x_scaler(this_date),
-                                    graph_info.y_scaler(ending_points),
-                                ],
-                                end: [
-                                    graph_info.x_scaler(dates ? dates.max : 0),
-                                    graph_info.y_scaler(0),
-                                ],
-                            },
-                        ]
-                    ) {
-                        let commands: string[];
 
-                        if(starting_points !== ending_points) {
-                            commands = [
-                                `M ${accent_info.start[0]} ${accent_info.start[1]}`,
-                                `L ${accent_info.end[0]} ${accent_info.end[1]}`,
-                            ];
-                        }
-                        else {
-                            commands = [
-                                `M ${graph_info.x_scaler(this_date)} 0`,
-                                `L ${graph_info.x_scaler(this_date)} 0`,
-                            ];
-                        }
+                    // TODO: The perf for this code is pretty bad; figure out what is going on
 
-                        // TODO: The perf for this code is pretty bad; figure out what is going on
-
-                        // const commands_str = commands.join(" ");
-                        //
-                        // this_graph
-                        //     .selectAll(`path.accent.${accent_info.cls}.${cls}${is_background ? ".background" : ""}`)
-                        //         .data([commands_str])
-                        //         .join(
-                        //             // @ts-ignore
-                        //             (enter: any) => {
-                        //                 enter
-                        //                     .append("path")
-                        //                         .attr("class", `accent ${accent_info.cls} ${cls} ${is_background ? "background" : ""}`)
-                        //                         .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
-                        //                         .attr("d", commands_str);
-                        //             },
-                        //             (update: any) => {
-                        //                 update
-                        //                     .transition()
-                        //                     .attr("d", commands_str);
-                        //             },
-                        //             (exit: any) => {
-                        //                 exit
-                        //                     .transition()
-                        //                     .style("opacity", 0)
-                        //                     .remove();
-                        //             },
-                        //         );
-                    }
+                    // for(
+                    //     let accent_info of [
+                    //         {
+                    //             cls: "projection-average-date",
+                    //             start: [
+                    //                 graph_info.x_scaler(this_date),
+                    //                 (graph_info.y_scaler(starting_points) + graph_info.y_scaler(ending_points)) / 2,
+                    //             ],
+                    //             end: [
+                    //                 graph_info.x_scaler(dates ? dates.average : 0),
+                    //                 graph_info.y_scaler(0),
+                    //             ],
+                    //         },
+                    //         {
+                    //             cls: "projection-highlight-min",
+                    //             start: [
+                    //                 graph_info.x_scaler(this_date),
+                    //                 graph_info.y_scaler(starting_points),
+                    //             ],
+                    //             end: [
+                    //                 graph_info.x_scaler(dates ? dates.min : 0),
+                    //                 graph_info.y_scaler(0),
+                    //             ],
+                    //         },
+                    //         {
+                    //             cls: "projection-highlight-max",
+                    //             start: [
+                    //                 graph_info.x_scaler(this_date),
+                    //                 graph_info.y_scaler(ending_points),
+                    //             ],
+                    //             end: [
+                    //                 graph_info.x_scaler(dates ? dates.max : 0),
+                    //                 graph_info.y_scaler(0),
+                    //             ],
+                    //         },
+                    //     ]
+                    // ) {
+                    //     let commands: string[];
+                    //
+                    //     if(starting_points !== ending_points) {
+                    //         commands = [
+                    //             `M ${accent_info.start[0]} ${accent_info.start[1]}`,
+                    //             `L ${accent_info.end[0]} ${accent_info.end[1]}`,
+                    //         ];
+                    //     }
+                    //     else {
+                    //         commands = [
+                    //             `M ${graph_info.x_scaler(this_date)} 0`,
+                    //             `L ${graph_info.x_scaler(this_date)} 0`,
+                    //         ];
+                    //     }
+                    //
+                    //     const commands_str = commands.join(" ");
+                    //
+                    //     this_graph
+                    //         .selectAll(`path.accent.${accent_info.cls}.${cls}${is_background ? ".background" : ""}`)
+                    //             .data([commands_str])
+                    //             .join(
+                    //                 // @ts-ignore
+                    //                 (enter: any) => {
+                    //                     enter
+                    //                         .append("path")
+                    //                             .attr("class", `accent ${accent_info.cls} ${cls} ${is_background ? "background" : ""}`)
+                    //                             .attr("clip-path", `url(#clip-path-${graph_info.cls}-${_unique_id}`)
+                    //                             .attr("d", commands_str);
+                    //                 },
+                    //                 (update: any) => {
+                    //                     update
+                    //                         .transition()
+                    //                         .attr("d", commands_str);
+                    //                 },
+                    //                 (exit: any) => {
+                    //                     exit
+                    //                         .transition()
+                    //                         .style("opacity", 0)
+                    //                         .remove();
+                    //                 },
+                    //             );
+                    // }
                 }
             }
 
@@ -1139,7 +1141,7 @@
 ----------------------------------------------------------------------
 -->
 {#if _mounted}
-    {#await _init_async then data}
+    {#await _init_async then _data}
         <div
             class=graph
             style={debug_mode ? _debug_colors.Border() : ""}

@@ -59,7 +59,7 @@
 
     } from '@fortawesome/free-solid-svg-icons';
 
-    import { Accordion, AccordionItem } from 'svelte-collapsible'
+    import { Accordion, AccordionItem } from 'svelte-collapsible';
 
     // ----------------------------------------------------------------------
     // |  Properties
@@ -125,7 +125,7 @@
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
-    let _init_async;
+    let _init_async: any;
     let _mounted = false;
     let _is_initialized = false;
 
@@ -228,7 +228,7 @@
     bind:this={_timeline_projections_element}
 >
     {#if _mounted}
-        {#await _init_async then data}
+        {#await _init_async then _data}
             <!--
             ----------------------------------------------------------------------
             |  Header
