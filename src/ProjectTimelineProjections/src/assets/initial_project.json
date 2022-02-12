@@ -1,0 +1,90 @@
+[
+    {
+        "date": "2022-1-17",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 77,
+        "num_unestimated_items": 0
+    },
+    {
+        "date": "2022-1-18",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 113,
+        "num_unestimated_items": 0
+    },
+    {
+        "date": "2022-1-19",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 133,
+        "num_unestimated_items": 0
+    },
+    {
+        "date": "2022-1-20",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 160,
+        "num_unestimated_items": 0
+    },
+    {
+        "date": "2022-1-21",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 183,
+        "num_unestimated_items": 0
+    },
+    {
+        "date": "2022-1-22",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 183,
+        "num_unestimated_items": 10
+    },
+    {
+        "date": "2022-1-23",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 183,
+        "num_unestimated_items": 17
+    },
+    {
+        "date": "2022-2-01",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 160,
+        "num_unestimated_items": 17
+    },
+    {
+        "date": "2022-2-02",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 139,
+        "num_unestimated_items": 17
+    },
+    {
+        "date": "2022-2-03",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 160,
+        "num_unestimated_items": 17
+    },
+    {
+        "date": "2022-2-04",
+        "total_points_completed": 0,
+        "total_points_pending": 0,
+        "total_points_active": 0,
+        "total_points_estimated": 100,
+        "num_unestimated_items": 8
+    }
+]
