@@ -39,7 +39,7 @@
     import * as d3 from 'd3';
     import { createEventDispatcher, onMount } from 'svelte';
 
-    import Fa from 'svelte-fa/src/fa.svelte';
+    import Fa from 'svelte-fa';
     import {
         faUndo,
 

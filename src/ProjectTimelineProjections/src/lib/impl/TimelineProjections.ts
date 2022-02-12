@@ -185,7 +185,7 @@ export class TimelineOutputEvent {
     constructor(
         public readonly date: Date,
         public readonly is_sprint_boundary: boolean,
-        public readonly is_generated,
+        public readonly is_generated: boolean,
         public readonly team_data: Record<string | undefined, TimelineOutputEventTeamData>,
     ) {
         let total_points = 0;

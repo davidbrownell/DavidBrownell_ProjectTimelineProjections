@@ -96,7 +96,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnAnySprintBoundary(event) {
+    function OnAnySprintBoundary(event: any) {
         if(!event.target.value) {
             _any_sprint_boundary_error = true;
             return;
@@ -111,7 +111,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnDaysInSprint(event) {
+    function OnDaysInSprint(event: any) {
         const value = _ExtractEventValue(event);
 
         if(value == undefined) {
@@ -126,7 +126,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnPointsPerUnestimatedItem(event) {
+    function OnPointsPerUnestimatedItem(event: any) {
         const value = _ExtractEventValue(event);
 
         if(value === undefined) {
@@ -141,7 +141,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnUsePreviousNSprints(event) {
+    function OnUsePreviousNSprints(event: any) {
         if(event.target.classList.contains("use-previous-n-sprints-check")) {
             _use_previous_n_sprints_check = !_use_previous_n_sprints_check;
         }
@@ -174,7 +174,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnUnestimatedVelocityFactors(event) {
+    function OnUnestimatedVelocityFactors(event: any) {
         const value = _ExtractEventValue(event);
 
         if(value === undefined) {
@@ -203,7 +203,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnVelocityOverrides(event) {
+    function OnVelocityOverrides(event: any) {
         if(event.target.classList.contains("velocity-overrides-check")) {
             _velocity_overrides_check = !_velocity_overrides_check;
         }
@@ -271,7 +271,7 @@
     }
 
     // ----------------------------------------------------------------------
-    function _ExtractEventValue(event): number | undefined {
+    function _ExtractEventValue(event: any): number | undefined {
         if(!event.target.value)
             return undefined;
 
@@ -441,7 +441,7 @@
                 <input
                     type=checkbox
                     class="label use-velocity-overrides-for-all-dates-check"
-                    value={_working_config.use_velocity_overrides_for_all_dates}
+                    value={String(_working_config.use_velocity_overrides_for_all_dates)}
                     disabled={!_velocity_overrides_check}
                     on:input={OnVelocityOverrides}
                 >
