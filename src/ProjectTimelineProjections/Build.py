@@ -45,8 +45,17 @@ _script_dir, _script_name                   = os.path.split(_script_fullpath)
 def Build(
     output_dir,
     output_stream=sys.stdout,
+    no_install=False,
     verbose=False,
 ):
+    if not no_install:
+        result = Install(
+            output_stream,
+            verbose=verbose,
+        )
+        if result != 0:
+            return result
+
     with StreamDecorator(output_stream).DoneManager(
         line_prefix="",
         prefix="\nResults: ",
@@ -155,8 +164,8 @@ def Dev(
 
 
                 -----------------------------------------------------------------------------------
-                Running this command locally is a much better experience; this functionality exists
-                mostly for documentation purposes to help those unfamiliar with web developemnt to
+                Running this functionality via npm directly is a much better experience; this functionality
+                exists here mostly for documentation purposes to help those unfamiliar with web development to
                 get up-and=running more quickly.
                 -----------------------------------------------------------------------------------
 
