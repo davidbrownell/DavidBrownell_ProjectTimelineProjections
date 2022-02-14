@@ -7,7 +7,7 @@
 # |
 # ----------------------------------------------------------------------
 # |
-# |  Copyright David Brownell 2018-21.
+# |  Copyright David Brownell 2018-22.
 # |  Distributed under the Boost Software License, Version 1.0.
 # |  (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 # |
@@ -19,7 +19,7 @@ import sys
 
 sys.path.insert(0, os.getenv("DEVELOPMENT_ENVIRONMENT_FUNDAMENTAL"))
 from RepositoryBootstrap.SetupAndActivate import CommonEnvironment, CurrentShell
-
+from RepositoryBootstrap.Impl import CommonEnvironmentImports
 del sys.path[0]
 
 # ----------------------------------------------------------------------
@@ -52,7 +52,30 @@ def GetCustomActions(
     cases, this is Bash on Linux systems and Batch or PowerShell on Windows systems.
     """
 
-    return []
+    actions = []
+
+    # Find npm
+    result, output = CommonEnvironmentImports.Process.Execute("npm version")
+    if result != 0:
+        found = False
+
+        if CommonEnvironmentImports.CurrentShell.CategoryName == "Windows":
+            # Look for a common installation path
+            for environment_var in [
+                "ProgramFiles",
+                "ProgramFiles(x86)",
+            ]:
+                potential_node_path = os.path.join(os.getenv(environment_var), "nodejs")
+                if os.path.isdir(potential_node_path):
+                    actions.append(CommonEnvironmentImports.CurrentShell.Commands.AugmentPath(potential_node_path))
+
+                    found = True
+                    break
+
+        if not found:
+            raise Exception("npm was not found in the environment; please install npm before activating this repository.")
+
+    return actions
 
 
 # ----------------------------------------------------------------------
