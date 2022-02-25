@@ -998,10 +998,10 @@
                     highlighted_event = _events[_events.length - 1];
             }
 
-            dispatch("display_stats", { event: highlighted_event });
-
             _highlighted_event = highlighted_event;
         }
+
+        dispatch("display_stats", { event: _highlighted_event|| _events[_events.length - 1] });
 
         highlight_line_points = highlight_line_points.join(" ");
 
