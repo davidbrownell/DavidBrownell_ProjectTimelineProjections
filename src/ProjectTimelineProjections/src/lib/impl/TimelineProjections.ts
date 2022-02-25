@@ -20,7 +20,12 @@ import { StatsInfo } from './SharedTypes';
 export function ToDate(date: Date | string): Date {
     var result = new Date(date);
 
+    // Convert from UTC to local time
+    result.setMinutes(result.getMinutes() + result.getTimezoneOffset());
+
+    // Remove the time component
     result.setHours(0, 0, 0, 0);
+
     return result;
 }
 
@@ -374,15 +379,17 @@ export function CreateTimelineEvents(
                     continue;
 
                 total_points += velocity;
-                num_sprints += 1;
 
-                if(min_v === undefined || velocity < min_v)
+                if(velocity !== 0)
+                    num_sprints += 1;
+
+                if(velocity !== 0 && (min_v === undefined || velocity < min_v))
                     min_v = velocity;
                 if(max_v === undefined || velocity > max_v)
                     max_v = velocity;
             }
 
-            this.calculated_velocity = new StatsInfo<number>(total_points / num_sprints, min_v, max_v);
+            this.calculated_velocity = new StatsInfo<number>(num_sprints ? total_points / num_sprints : 0, min_v || max_v, max_v);
         }
     }
 
@@ -399,17 +406,18 @@ export function CreateTimelineEvents(
 
         // Update velocities if we are looking at a sprint boundary
         if(is_sprint_boundary) {
-            let recognized_teams = new Set<string | undefined>(Object.keys(velocity_data_items));
+            let recognized_teams = new Set<string>(Object.keys(velocity_data_items));
 
             for(let index = input_event_start_index; index != input_event_end_index; index++) {
                 const event = input_events[index];
+                const team_name = event.team || "";
 
-                if(recognized_teams.has(event.team)) {
-                    recognized_teams.delete(event.team);
-                    velocity_data_items[event.team].UpdateVelocity(event.total_points_completed);
+                if(recognized_teams.has(team_name)) {
+                    recognized_teams.delete(team_name);
+                    velocity_data_items[team_name].UpdateVelocity(event.total_points_completed);
                 }
                 else
-                    velocity_data_items[event.team] = new VelocityData(event.total_points_completed);
+                    velocity_data_items[team_name] = new VelocityData(event.total_points_completed);
             }
 
             recognized_teams.forEach(
@@ -426,7 +434,7 @@ export function CreateTimelineEvents(
             const event = input_events[index];
             const velocity_info = (
                 () => {
-                    const velocity_data_item = velocity_data_items[event.team];
+                    const velocity_data_item = velocity_data_items[event.team || ""];
 
                     if(velocity_data_item === undefined)
                         return undefined;

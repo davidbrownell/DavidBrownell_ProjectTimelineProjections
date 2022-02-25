@@ -1,90 +1,155 @@
 [
-    {
-        "date": "2022-1-17",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 77,
-        "num_unestimated_items": 0
-    },
-    {
-        "date": "2022-1-18",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 113,
-        "num_unestimated_items": 0
-    },
-    {
-        "date": "2022-1-19",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 133,
-        "num_unestimated_items": 0
-    },
-    {
-        "date": "2022-1-20",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 160,
-        "num_unestimated_items": 0
-    },
-    {
-        "date": "2022-1-21",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 183,
-        "num_unestimated_items": 0
-    },
-    {
-        "date": "2022-1-22",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 183,
-        "num_unestimated_items": 10
-    },
-    {
-        "date": "2022-1-23",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 183,
-        "num_unestimated_items": 17
-    },
-    {
-        "date": "2022-2-01",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 160,
-        "num_unestimated_items": 17
-    },
-    {
-        "date": "2022-2-02",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 139,
-        "num_unestimated_items": 17
-    },
-    {
-        "date": "2022-2-03",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 160,
-        "num_unestimated_items": 17
-    },
-    {
-        "date": "2022-2-04",
-        "total_points_completed": 0,
-        "total_points_pending": 0,
-        "total_points_active": 0,
-        "total_points_estimated": 100,
-        "num_unestimated_items": 8
-    }
+{
+    "date" : "2022-01-24",
+    "total_points_completed" : 0,
+    "total_points_pending" : 0,
+    "total_points_active" : 0,
+    "total_points_estimated" : 174.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-01-25",
+    "total_points_completed" : 0,
+    "total_points_pending" : 0,
+    "total_points_active" : 0,
+    "total_points_estimated" : 153.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-01-26",
+    "total_points_completed" : 0,
+    "total_points_pending" : 0,
+    "total_points_active" : 0,
+    "total_points_estimated" : 153.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-01-28",
+    "total_points_completed" : 0,
+    "total_points_pending" : 0,
+    "total_points_active" : 0,
+    "total_points_estimated" : 153.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-01-31",
+    "total_points_completed" : 5.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 6.0,
+    "total_points_estimated" : 143.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-02-02",
+    "total_points_completed" : 8.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 3.0,
+    "total_points_estimated" : 163.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-02-07",
+    "total_points_completed" : 8.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 3.0,
+    "total_points_estimated" : 163.0,
+    "num_unestimated_items" : 21
+},
+
+{
+    "date" : "2022-02-08",
+    "total_points_completed" : 13.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 0,
+    "total_points_estimated" : 174.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-09",
+    "total_points_completed" : 13.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 3.0,
+    "total_points_estimated" : 171.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-10",
+    "total_points_completed" : 13.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 7.0,
+    "total_points_estimated" : 167.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-11",
+    "total_points_completed" : 19.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 1.0,
+    "total_points_estimated" : 167.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-14",
+    "total_points_completed" : 19.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 7.0,
+    "total_points_estimated" : 161.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-15",
+    "total_points_completed" : 20.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 6.0,
+    "total_points_estimated" : 161.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-17",
+    "total_points_completed" : 20.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 6.0,
+    "total_points_estimated" : 161.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-18",
+    "total_points_completed" : 20.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 9.0,
+    "total_points_estimated" : 158.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-22",
+    "total_points_completed" : 23.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 6.0,
+    "total_points_estimated" : 159.0,
+    "num_unestimated_items" : 22
+},
+
+{
+    "date" : "2022-02-23",
+    "total_points_completed" : 30.0,
+    "total_points_pending" : 0,
+    "total_points_active" : 6,
+    "total_points_estimated" : 156.0,
+    "num_unestimated_items" : 22
+}
+
 ]
