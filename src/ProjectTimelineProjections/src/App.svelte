@@ -66,7 +66,7 @@
             }
 
             _events = initial_project;
-            _any_sprint_boundary = new Date("2022-1-05");
+            _any_sprint_boundary = new Date("2022-2-23");
             _title = "SaaS Projections";
         }
     );
