@@ -66,6 +66,7 @@
     // ----------------------------------------------------------------------
     export let title: string;
     export let description: string | undefined = undefined;
+    export let image: string | undefined = undefined;
 
     export let events: TimelineInputEvent[];
     export let date: Date | undefined = undefined;
@@ -250,21 +251,37 @@
                     </div>
                 {/if}
 
-                <div
-                    class=title
-                    style={_debug_borders ? _debug_colors.Border() : ""}
-                >
-                    {@html title}
-                </div>
-
-                {#if description}
+                {#if image}
                     <div
-                        class=description
+                        class=image
                         style={_debug_borders ? _debug_colors.Border() : ""}
                     >
-                        {@html description}
+                        <img
+                            src={image}
+                            alt={`${title} Image`}
+                        />
                     </div>
                 {/if}
+
+                <div
+                    class={`text-container ${image ? "header-indented" : ""}`}
+                >
+                    <div
+                        class=title
+                        style={_debug_borders ? _debug_colors.Border() : ""}
+                    >
+                        {@html title}
+                    </div>
+
+                    {#if description}
+                        <div
+                            class=description
+                            style={_debug_borders ? _debug_colors.Border() : ""}
+                        >
+                            {@html description}
+                        </div>
+                    {/if}
+                </div>
             </div>
 
             <!--
@@ -442,13 +459,24 @@
 
         .header
             flex: 0
+            position: relative
 
-            .title
-                font-size: 3em
-                font-weight: bold
+            .image
+                img
+                    width: 100px
 
-            .description
-                padding-left: 1em
+            .text-container
+                &.header-indented
+                    position: absolute
+                    top: 0px
+                    left: 120px
+
+                .title
+                    font-size: 3em
+                    font-weight: bold
+
+                .description
+                    padding-left: 1em
 
         :global(.content)
             flex: 1
