@@ -1,0 +1,7 @@
+{
+    "title": "Sample title",
+    "description": "Sample description",
+    "image": "sample_query_data.jpg",
+    "events": "sample_query_data_events.json",
+    "any_sprint_boundary": "2022-01-05"
+}
