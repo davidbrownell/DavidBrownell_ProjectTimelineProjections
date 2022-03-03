@@ -53,6 +53,18 @@
         return `${date.getMonth() + 1} / ${date.getDate()} / ${date.getFullYear()}`;
     }
 
+    function _GetVelocity(event: TimelineOutputEvent, attribute: str): string {
+        const stats_info = event.velocity_overrides || event.average_velocities || null;
+
+        if(stats_info === null)
+            return "";
+
+        if(stats_info[attribute] === undefined)
+            return "";
+
+        return stats_info[attribute].toString();
+    }
+
     // ----------------------------------------------------------------------
 
     // Initiation
@@ -102,9 +114,9 @@
                 cls: "velocities",
                 label: "Calculated Velocities",
                 items: [
-                    {cls: "min", label: "Min:", value: event.average_velocities !== undefined ? event.average_velocities.min || "" : "", is_date: false},
-                    {cls: "average", label: "Avg:", value: event.average_velocities !== undefined ? event.average_velocities.average || "" : "", is_date: false},
-                    {cls: "max", label: "Max:", value: event.average_velocities !== undefined ? event.average_velocities.max || "" : "", is_date: false},
+                    {cls: "min", label: "Min:", value: _GetVelocity(event, "min"), is_date: false},
+                    {cls: "average", label: "Avg:", value: _GetVelocity(event, "average"), is_date: false},
+                    {cls: "max", label: "Max:", value: _GetVelocity(event, "max"), is_date: false},
                 ],
             },
             {
