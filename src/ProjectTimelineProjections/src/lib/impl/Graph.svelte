@@ -1223,13 +1223,13 @@
                 stroke-opacity: 0.25
                 stroke-dasharray: 4 4
 
+            :global(path.accent)
+                fill: none
+                stroke-width: 1px
+
             :global(.details)
                 :global(.stacked)
                     opacity: .5
-
-                :global(path.accent)
-                    fill: none
-                    stroke-width: 1px
 
                 :global(.projection)
                     opacity: .5
