@@ -53,7 +53,7 @@
         return `${date.getMonth() + 1} / ${date.getDate()} / ${date.getFullYear()}`;
     }
 
-    function _GetVelocity(event: TimelineOutputEvent, attribute: str): string {
+    function _GetVelocity(event: TimelineOutputEvent, attribute: string): string {
         const stats_info = event.velocity_overrides || event.average_velocities || null;
 
         if(stats_info === null)
