@@ -28,7 +28,8 @@
     import {
         Colors,
         default_days_in_sprint,
-        default_points_per_unestimated_item,
+        default_points_per_standard_unestimated_item,
+        default_points_per_large_unestimated_item,
         default_unestimated_velocity_factors,
         StatsInfo,
         Configuration as ConfigurationType,
@@ -73,7 +74,8 @@
 
     export let any_sprint_boundary: Date;   // Doesn't matter which one we use
     export let days_in_sprint: number = default_days_in_sprint;
-    export let points_per_unestimated_item: number = default_points_per_unestimated_item;
+    export let points_per_standard_unestimated_item: number = default_points_per_standard_unestimated_item;
+    export let points_per_large_unestimated_item: number = default_points_per_large_unestimated_item;
     export let use_previous_n_sprints_for_average_velocity: number | undefined = undefined; // When calcualting velocity, limit calculations to the last N sprints; all sprints are used if the value is undefined.
     export let unestimated_velocity_factors: [number, number] = default_unestimated_velocity_factors;
     export let velocity_overrides: StatsInfo<number> | undefined = undefined;
@@ -141,7 +143,8 @@
                 _configuration = new ConfigurationType(
                     any_sprint_boundary,
                     days_in_sprint,
-                    points_per_unestimated_item,
+                    points_per_standard_unestimated_item,
+                    points_per_large_unestimated_item,
                     use_previous_n_sprints_for_average_velocity,
                     unestimated_velocity_factors,
                     velocity_overrides,
@@ -161,7 +164,8 @@
                 events,
                 _configuration.days_in_sprint,
                 _configuration.any_sprint_boundary,
-                _configuration.points_per_unestimated_item,
+                _configuration.points_per_standard_unestimated_item,
+                _configuration.points_per_large_unestimated_item,
                 _configuration.use_previous_n_sprints_for_average_velocity,
             );
 

@@ -63,7 +63,8 @@
 
     let _any_sprint_boundary_error: boolean = false;
     let _days_in_sprint_error: boolean = false;
-    let _points_per_unestimated_error: boolean = false;
+    let _points_per_standard_unestimated_error: boolean = false;
+    let _points_per_large_unestimated_error: boolean = false;
     let _use_previous_n_sprints_error: boolean = false;
     let _unestimated_velocity_factors_min_error: boolean = false;
     let _unestimated_velocity_factors_max_error: boolean = false;
@@ -126,16 +127,31 @@
     }
 
     // ----------------------------------------------------------------------
-    function OnPointsPerUnestimatedItem(event: any) {
+    function OnPointsPerStandardUnestimatedItem(event: any) {
         const value = _ExtractEventValue(event);
 
         if(value === undefined) {
-            _points_per_unestimated_error = true;
+            _points_per_standard_unestimated_error = true;
             return;
         }
 
-        _points_per_unestimated_error = false;
-        _working_config.points_per_unestimated_item = value;
+        _points_per_standard_unestimated_error = false;
+        _working_config.points_per_standard_unestimated_item = value;
+
+        _OnChange();
+    }
+
+    // ----------------------------------------------------------------------
+    function OnPointsPerLargeUnestimatedItem(event: any) {
+        const value = _ExtractEventValue(event);
+
+        if(value === undefined) {
+            _points_per_large_unestimated_error = true;
+            return;
+        }
+
+        _points_per_large_unestimated_error = false;
+        _working_config.points_per_large_unestimated_item = value;
 
         _OnChange();
     }
@@ -300,7 +316,8 @@
         if(
             _any_sprint_boundary_error
             || _days_in_sprint_error
-            || _points_per_unestimated_error
+            || _points_per_standard_unestimated_error
+            || _points_per_large_unestimated_error
             || _use_previous_n_sprints_error
             || _unestimated_velocity_factors_min_error
             || _unestimated_velocity_factors_max_error
@@ -347,13 +364,22 @@
                 on:input={OnDaysInSprint}
             />
 
-            <div class=label>Points per Unestimated Item:</div>
+            <div class=label>Points per Standard Unestimated Item:</div>
             <input
                 type=number
                 min=1
-                class={_points_per_unestimated_error ? "error" : ""}
-                value={_working_config.points_per_unestimated_item}
-                on:input={OnPointsPerUnestimatedItem}
+                class={_points_per_standard_unestimated_error ? "error" : ""}
+                value={_working_config.points_per_standard_unestimated_item}
+                on:input={OnPointsPerStandardUnestimatedItem}
+            />
+
+            <div class=label>Points per Large Unestimated Item:</div>
+            <input
+                type=number
+                min=1
+                class={_points_per_large_unestimated_error ? "error" : ""}
+                value={_working_config.points_per_large_unestimated_item}
+                on:input={OnPointsPerLargeUnestimatedItem}
             />
 
             <div class="label unestimated-velocity-factors">Unestimated Velocity Factors</div>
