@@ -60,14 +60,16 @@ export class StatsInfo<Type> {
 
 // ----------------------------------------------------------------------
 export const default_days_in_sprint = 14;
-export const default_points_per_unestimated_item = 8;
+export const default_points_per_standard_unestimated_item = 8;
+export const default_points_per_large_unestimated_item = 25;
 export const default_unestimated_velocity_factors: [number, number] = [0.5, 2];
 
 export class Configuration {
     constructor(
         public any_sprint_boundary: Date,
         public days_in_sprint: number=default_days_in_sprint,
-        public points_per_unestimated_item=default_points_per_unestimated_item,
+        public points_per_standard_unestimated_item=default_points_per_standard_unestimated_item,
+        public points_per_large_unestimated_item=default_points_per_large_unestimated_item,
         public use_previous_n_sprints_for_average_velocity: number | undefined=undefined,
         public unestimated_velocity_factors: [number, number]=default_unestimated_velocity_factors,
         public velocity_overrides: StatsInfo<number> | undefined=undefined,
@@ -78,7 +80,8 @@ export class Configuration {
         return new Configuration(
             this.any_sprint_boundary,
             this.days_in_sprint,
-            this.points_per_unestimated_item,
+            this.points_per_standard_unestimated_item,
+            this.points_per_large_unestimated_item,
             this.use_previous_n_sprints_for_average_velocity,
             this.unestimated_velocity_factors,
             this.velocity_overrides,

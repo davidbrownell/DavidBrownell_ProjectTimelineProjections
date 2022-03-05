@@ -52,6 +52,8 @@ export interface TimelineInputEvent {
 
     readonly team?: string;
     readonly opaque_data?: any;
+
+    readonly num_large_unestimated_items?: number;      // beyond current sprint
 }
 
 
@@ -335,7 +337,8 @@ export function CreateTimelineEvents(
     input_events: TimelineInputEvent[],     // Must be in ascending order according to `date`
     days_in_sprint: number,
     any_sprint_boundary: Date,
-    points_per_unestimated_item: number,
+    points_per_standard_unestimated_item: number,
+    points_per_large_unestimated_item: number,
     use_previous_n_sprints_for_average_velocity?: number,   // When calculating velocity, look at the last N sprints. Default is to look at all sprints.
 ): TimelineOutputEvent[] {
     // ----------------------------------------------------------------------
@@ -449,9 +452,10 @@ export function CreateTimelineEvents(
                 event.total_points_active,
                 event.total_points_estimated,
                 event.num_unestimated_items,
-                event.num_unestimated_items * points_per_unestimated_item,
+                event.num_unestimated_items * points_per_standard_unestimated_item
+                    + (event.num_large_unestimated_items || 0) * points_per_large_unestimated_item,
                 velocity_info,
-                event.opaque_data
+                event.opaque_data,
             );
         }
 
