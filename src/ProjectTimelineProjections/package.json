@@ -22,7 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@types/d3": "^7.1.0",
     "d3": "^7.2.1",
-    "node-sass": "^7.0.1",
+    "node-sass": "^7.0.3",
     "sass": "^1.45.2",
     "svelte-collapsible": "^0.2.1",
     "svelte-fa": "^2.4.0"
